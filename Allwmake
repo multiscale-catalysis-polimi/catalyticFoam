@@ -1,0 +1,18 @@
+source mybashrc
+
+echo "Compiling catalyticWall boundary condition"
+cd boundary/catalyticWall
+wclean
+wmake
+
+echo " "
+echo "Compiling catalyticFoam libraries"
+cd ../../libraries
+./Allwclean
+./Allwmake
+
+echo " "
+echo "Compiling catalyticFoam solver"
+cd ../solver
+wclean
+wmake

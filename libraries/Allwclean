@@ -1,0 +1,11 @@
+#!/bin/bash
+echo "Cleaning ISAT..."
+rm -rf ISAT/lib
+
+echo "Cleaning odeChemistry..."
+rm -rf odeChemistry/lib
+
+echo "Cleaning OpenSMOKEpp..."
+rm -rf OpenSMOKEpp/lib
+
+

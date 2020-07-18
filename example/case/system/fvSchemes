@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss upwind phi;
+    grad(p)         Gauss upwind phi;
+    grad(U)         Gauss upwind phi;
+}
+
+divSchemes
+{
+    default         		    	none;
+
+    div(U,p)	                    	Gauss upwind;
+    div(phi,U)                      	Gauss upwind;
+    div(phi,T)                      	Gauss upwind;
+    
+    div(Ji,hsi)			    	Gauss upwind;
+    div(phi,Yi_h)                   	Gauss limitedLinear01 1;
+    div(Jc,Yi)			    	Gauss limitedLinear01 1;
+
+    div(phiU,p)                     	Gauss upwind;
+    div((gas::mu*dev2(grad(U).T())))	Gauss linear;
+
+}
+
+laplacianSchemes
+{
+    default                      Gauss linear orthogonal;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         orthogonal;
+}
+
+fluxRequired
+{
+    default         no;
+    p               ;
+}
+
+
+// ************************************************************************* //

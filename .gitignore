@@ -1,0 +1,11 @@
+*.pyc
+*.tif
+*.pkl
+*.dat
+*.txt
+*.a
+*.so
+
+linux*
+lib
+CatalyticReactors

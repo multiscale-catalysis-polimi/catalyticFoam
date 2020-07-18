@@ -1,0 +1,72 @@
+MATERIAL MAT-1
+
+HEATS_OF_CHEMISORPTION 
+TREF / 300 /
+    Rh_s_   /   0.        0.0												/
+    O_s_	/	1.5		100.0	O_s_	-26.0								/
+    H_s_	/	1.5		 62.3  	CO_s_	 -3.7	H_s_	-2.5				/
+    OH_s_	/	2.0		 70.0  	O_s_	-33.0	H2O_s_	25.0	OH_s_	-25 /
+    H2O_s_	/	2.5		 10.8  	OH_s_	 25.0	H2O_s_	-4.5				/
+    CO_s_	/	2.0		 38.5  	CO_s_	-15.0	H_s_	-3.7				/
+    CO2_s_	/	2.0		  5.2												/
+    COOH_s_	/	2.5		 62.2												/
+END
+
+SITE/RH_SURFACE/    SDEN/2.49E-9/
+    Rh_s_   H2O_s_  H_s_    OH_s_   CO_s_   
+    O_s_    CO2_s_  COOH_s_ 
+END
+
+
+REACTIONS
+H2      +2Rh_s_     => 2H_s_                	7.73E-01     0.9387  0.50
+UBIQEP /	2	ADS DIR		H/
+2H_s_   =>H2        +2Rh_s_                 	5.56E+11    -0.4347  0.50
+UBIQEP /	2	DES REV		H/
+
+H2O     +Rh_s_  =>H2O_s_           				7.72E-02     1.4067  0.50
+UBIQEP /	1	ADS DIR /    
+H2O_s_          =>H2O       +Rh_s_ 				2.06E+13    -1.8613  0.50        
+UBIQEP /	1	DES REV / 
+
+CO      +Rh_s_  =>CO_s_         				5.00E-01    -2.0000  0.50
+UBIQEP /	1	ADS DIR / 
+CO_s_           =>CO        +Rh_s_ 				5.65E+12     1.9879  0.50
+UBIQEP /	1	DES REV /
+
+CO2     +Rh_s_  =>CO2_s_           				3.67E-01    -2.3294  0.50
+UBIQEP /	1	ADS DIR / 
+CO2_s_          =>CO2       +Rh_s_  			7.54E+10     2.1831  0.50
+UBIQEP /	1	DES REV /
+
+H2O_s_  +Rh_s_  =>H_s_      +OH_s_ 				1.15E+11     0.0281  0.55 
+UBIQEP /	5   SUP DIR 	H	OH	H2O/
+H_s_    +OH_s_  =>H2O_s_    +Rh_s_				3.60E+08     1.2972  0.55
+UBIQEP /	5   SUP REV 	H	OH	H2O/
+
+OH_s_   +Rh_s_  =>H_s_      +O_s_           	1.82E+14    -0.2659  0.70
+UBIQEP /	5   SUP DIR 	H	O	OH/
+H_s_    +O_s_   =>OH_s_     +Rh_s_				1.64E+14    -0.8196  0.70
+UBIQEP /	5   SUP REV 	H	O	OH/
+
+CO2_s_  +Rh_s_  =>CO_s_     +O_s_ 				8.24E+09     1.9698  0.44
+UBIQEP /	5   SUP DIR 	CO	O	CO2/
+CO_s_   +O_s_   =>CO2_s_    +Rh_s_ 				6.54E+09     1.3560  0.44 
+UBIQEP /	5   SUP REV 	CO	O	CO2/
+
+COOH_s_ +Rh_s_  =>CO_s_     +OH_s_     			1.07E+12    -0.4123  0.50
+UBIQEP /	5   SUP DIR 	CO	OH	COOH/
+CO_s_   +OH_s_  =>COOH_s_   +Rh_s_ 				9.37E+11     0.4123  0.50
+UBIQEP /	5   SUP REV 	CO	OH	COOH/
+
+COOH_s_ +Rh_s_  =>CO2_s_    +H_s_ 				1.00E+10    -0.4424  2.20
+UBIQEP /	5   SUP DIR 	CO2	H	COOH/
+CO2_s_  +H_s_   =>COOH_s_   +Rh_s_ 				9.99E+09     0.4424  2.20
+UBIQEP /	5   SUP REV 	CO2	H	COOH/
+
+CO2_s_  +H2O_s_ =>COOH_s_   +OH_s_ 				1.78E+13    -0.1922  0.01 
+UBIQEP /	6   SUP DIR 	COOH	OH	CO2	H2O/
+COOH_s_ +OH_s_  =>CO2_s_    +H2O_s_ 			5.60E+10     0.1922  0.01 
+UBIQEP /	6   SUP REV 	COOH	OH	CO2	H2O/
+
+END

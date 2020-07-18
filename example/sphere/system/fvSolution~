@@ -1,0 +1,139 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+solvers
+{
+
+    "(rho|rhoFinal)"
+    {
+        solver              PCG;
+        preconditioner      DIC;
+        tolerance           1e-6;
+        relTol              0;
+    };
+
+
+    "(p|Phi)"
+    {
+       	solver                  GAMG;
+        tolerance               1e-6;
+        relTol                  0.001;
+        smoother                DICGaussSeidel;
+        cacheAgglomeration      true;
+        nCellsInCoarsestLevel   1000;
+        agglomerator            faceAreaPair;
+        mergeLevels             1;
+
+    }
+
+    pFinal
+    {
+	$p;
+	relTol 0.;
+    }
+
+    U
+    {
+ 	solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-06
+        relTol          0.1;
+    }
+
+    "(k|omega|epsilon)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0.1;
+    }
+
+    Yi
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          1e-06;
+	minIter		1;
+    }
+
+    UFinal
+    {
+	$U;       
+        relTol          0.;
+    }
+
+    "(kFinal|omegaFinal|epsilonFinal)"
+    {
+        $k;
+        relTol          0.;
+    }
+
+    YiFinal
+    {
+        $Yi;    
+        relTol          0.;
+    }
+
+
+}
+
+PIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+    nOuterCorrectors    5;
+    nCorrectors         2;
+
+    
+    rhoMin          rhoMin [ 1 -3 0 0 0 ] 0.001;
+    rhoMax          rhoMax [ 1 -3 0 0 0 ] 200.0;
+
+    residualControl
+    {
+	U
+	{
+	    tolerance 1e-3;
+	    relTol 0;
+        }
+	p
+        {       
+            tolerance 1e-2;
+            relTol 0;
+        }
+	Yi
+        {       
+            tolerance 1e-3;
+            relTol 0;
+        }
+    }
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               0.3;
+    }
+    equations
+    {
+        p               0.30;
+        U               0.7;
+	
+ 	k		0.7;
+	omega		0.7;
+	default		0.9;
+    }
+}
+// ************************************************************************* //

@@ -1,0 +1,15 @@
+ELEMENTS
+	C
+	O 
+	H
+	N
+	Rh
+END
+
+SPECIES
+	H2 O2 H2O O H OH CO CO2 CH4 CH CH2 CH3 C N2 COOH HCOO
+END
+
+REACTIONS
+	H2 => H2                            1.E1    .000  10000.0
+END

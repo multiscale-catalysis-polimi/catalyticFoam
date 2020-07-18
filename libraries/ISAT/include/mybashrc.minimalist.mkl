@@ -1,0 +1,28 @@
+#OpenFOAM VERSION (22 or 23)
+export OPENFOAM_VERSION='-DOPENFOAM_VERSION=23'
+
+#Compulsory path
+export EIGEN_LIBRARY_PATH=$HOME/NumericalLibraries/Eigen/eigen-3.2.4
+export BOOST_LIBRARY_PATH=$HOME/NumericalLibraries/Boost/boost_1_57_0/build
+export RAPIDXML_LIBRARY_PATH=$HOME/NumericalLibraries/RapidXML/rapidxml-1.13 
+export OPENSMOKE_LIBRARY_PATH=$HOME/NumericalLibraries/OpenSMOKEpp/source
+
+#Options
+export MKL_SUPPORT='-DOPENSMOKE_USE_MKL=0'
+export EXTERNAL_ODE_SOLVERS=
+
+
+#Only if the OPENSMOKE_USE_MKL is turned on
+export MKL_PATH=
+export MKL_INCLUDE=
+export MKL_LIBS=
+
+#Optional external ODE solvers
+export MEBDF_LIBS=
+export RADAU_LIBS=
+export DASPK_LIBS=
+export ODEPACK_LIBS=
+export DVODE_LIBS=
+export LINPACK_LIBS=
+export SUNDIALS_PATH=
+export SUNDIALS_LIBS=

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opensmoke version="0.1a">
+<reaction-number>
+20
+</reaction-number>
+<reaction-names>
+H2+2Rh_s_=>2H_s_
+2H_s_=>H2+2Rh_s_
+H2O+Rh_s_=>H2O_s_
+H2O_s_=>H2O+Rh_s_
+CO+Rh_s_=>CO_s_
+CO_s_=>CO+Rh_s_
+CO2+Rh_s_=>CO2_s_
+CO2_s_=>CO2+Rh_s_
+Rh_s_+H2O_s_=>H_s_+OH_s_
+H_s_+OH_s_=>Rh_s_+H2O_s_
+Rh_s_+OH_s_=>H_s_+O_s_
+H_s_+O_s_=>Rh_s_+OH_s_
+Rh_s_+CO2_s_=>CO_s_+O_s_
+CO_s_+O_s_=>Rh_s_+CO2_s_
+Rh_s_+COOH_s_=>OH_s_+CO_s_
+OH_s_+CO_s_=>Rh_s_+COOH_s_
+Rh_s_+COOH_s_=>H_s_+CO2_s_
+H_s_+CO2_s_=>Rh_s_+COOH_s_
+H2O_s_+CO2_s_=>OH_s_+COOH_s_
+OH_s_+COOH_s_=>H2O_s_+CO2_s_
+</reaction-names>
+</opensmoke>

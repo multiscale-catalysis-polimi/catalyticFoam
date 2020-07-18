@@ -1,0 +1,19 @@
+#!/bin/bash
+cd ISAT
+./make.sh
+cd ..
+
+echo " "
+
+cd OpenSMOKEpp4catalyticFoam
+./make.sh
+cd ..
+
+echo " "
+
+cd odeChemistry
+./make.sh
+cd ..
+
+
+

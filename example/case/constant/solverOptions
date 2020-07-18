@@ -1,0 +1,99 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.3;
+    format      binary;
+    class       dictionary;
+    location    "constant";
+    object      solverOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+Kinetics
+{
+	folder	   			"kinetic/kinetics";  // path to precompiled kinetic
+	inertSpecies 			N2;                  // inert species
+}
+
+PhysicalModel
+{
+	// Operator splitting algorithm
+	strangAlgorithm 		"TransportReactionMomentum";
+
+	// Switch for homogeneous and heterogeneous chemistries
+	homogeneousReactions 		off;
+	heterogeneousReactions 		on;
+
+	// Catalytic load (m2_cat/m2_geom)
+	alfaCatalyst 			10.0;
+
+	// Name of reacting patches
+	catalyticWalls (reactingWall);
+
+	// Switch for energy equation
+	energyEquation			        off;
+	reactionHeatFromHeterogeneousReactions  on;
+
+	// Consider the catalytic cell as constant pressure | volume (true | false)
+	constPressureBatchReactor 	        true;
+
+	// Consider mass diffusion in energy equation
+	massDiffusionInEnergyEquation	on;
+
+	// Physical model for diffusion
+	diffusivityModel		"multi-component";		// lewis-numbers
+
+	// Consider DpDt term in energy balance
+	includeDpDt			off;
+
+	// Consider Soret's effect
+	soretEffect			off;
+}
+
+OdeHomogeneous
+{
+	odeSolver 	"OpenSMOKE";
+	relTolerance 	1e-7;
+	absTolerance 	1e-12;
+	maximumOrder 	5;
+	fullPivoting 	false;
+}
+
+OdeHeterogeneous
+{
+	odeSolver 	"OpenSMOKE";
+	relTolerance 	1e-7;
+	absTolerance 	1e-12;
+	maximumOrder 	5;
+	fullPivoting 	false;
+}
+
+#include "isatOptions"	
+
+Spark
+{
+	spark 		off;
+	position    	(5.95e-3  0.0 1.5e-3);
+	time		0.;
+	temperature 	2205;
+	duration 	0.025;
+	diameter 	1.5e-3;
+}
+
+LewisNumbers
+{
+	O2  1.0;
+	H2  1.1;
+	H2O 1.2;
+	N2  1.3;
+}
+
+// ************************************************************************* //
+
+
