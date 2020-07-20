@@ -42,7 +42,7 @@ The folder `example/sphere` contains a 4-spheres string reactor.
 1. Build the mesh with `./makeMesh`
 2. Run the case using the `catalyticPimpleFoam` solver. 
 
-## Compile a kinetic scheme
+## Compilation of a kinetic scheme
 The pre-processing of a kinetic scheme requires:
 1. Create a new folder with the kinetic scheme
 2. Create the kinetic.kin, surface.sur according to the kinetic mechanism
