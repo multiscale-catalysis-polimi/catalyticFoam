@@ -438,7 +438,7 @@ namespace OpenSMOKE
 			return current_date;
 	}
 
-	#include "Crypto-SHA256.h"
+	
 	#include<boost/tokenizer.hpp>
 
 	void OpenSMOKE_logo(const std::string application_name, const std::string author_name)

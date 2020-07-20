@@ -39,6 +39,7 @@
 
 #include <Eigen/Dense>
 #include "math/OpenSMOKEVector.h"
+#include "math/OpenSMOKEMatrix.h"
 #include "PreProcessorSpeciesPolicy_CHEMKIN_WithoutTransport.h"
 
 namespace OpenSMOKE
@@ -150,6 +151,8 @@ namespace OpenSMOKE
 		/** calculates the reduced temperature for each species */
 		void ReducedTemperatureSingleSpecies(const double T);
 		/** calculates the collisional integral */
+		void Omega22k();
+		/** calculates the collisional integral */
 		void SingleSpeciesViscosity(const double T);
 		///@}
 
@@ -170,6 +173,8 @@ namespace OpenSMOKE
 		void ThermalConductivitySingleSpecies(void);
 		/** calculates the collisional integral */
 		void Omega11kk(void);
+		/** calculates the collisional integral */
+		double CollisionIntegral11(double tjk, double djk);
 		/** calculates the self diffusion coefficient */
 		void SelfDiffusionCoefficient(const double T);
 		///@}

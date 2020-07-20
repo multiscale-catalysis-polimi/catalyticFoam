@@ -182,12 +182,12 @@ namespace OpenSMOKE
 				for (unsigned int i = 0; i < E.size();i++)
 					E[i] = fittedKineticParameters(1,i);
 
-				indices = SortAndTrackIndicesIncreasing(E);
+				indices = sort_and_track_indices_increasing(E);
 			}
 
 			for (unsigned int k = 0; k < indices.size(); k++)
 			{
-				unsigned int i = kinetics_map_.IndicesOfReversibleReactions()[indices[k]];
+				unsigned int i = kinetics_map_.indices_of_reversible_reactions()[indices[k]];
 
 				fOutput << " " << std::setw(7) << std::left << i;
 				kinetics_map_.FittedReverseKineticConstants(i, fOutput, fittedKineticParameters);
@@ -224,12 +224,12 @@ namespace OpenSMOKE
 				for (unsigned int i = 0; i < E.size(); i++)
 					E[i] = fittedKineticParameters(1, i);
 
-				indices = SortAndTrackIndicesIncreasing(E);
+				indices = sort_and_track_indices_increasing(E);
 			}
 
 			for (unsigned int k = 0; k < indices.size(); k++)
 			{
-				unsigned int i = kinetics_map_.IndicesOfReversibleReactions()[indices[k]];
+				unsigned int i = kinetics_map_.indices_of_reversible_reactions()[indices[k]];
 
 				fOutput << " " << std::setw(7) << std::left << i;
 				kinetics_map_.FittedReverseKineticConstants(i, fOutput, fittedKineticParameters);

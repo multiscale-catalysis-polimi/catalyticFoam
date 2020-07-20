@@ -34,9 +34,9 @@
 \*-----------------------------------------------------------------------*/
 
 // Thermodynamics, transport, and kinetics
-#include "kernel/thermo/Thermodynamics_CHEMKIN"
-#include "kernel/transport/Transport_CHEMKIN"
-#include "kernel/kinetics/ReactionPolicy_CHEMKIN.h"
+#include "thermo/Thermodynamics_CHEMKIN"
+#include "transport/Transport_CHEMKIN"
+#include "kinetics/ReactionPolicy_CHEMKIN.h"
 
 // Preprocessor
 #include "preprocessing/PreProcessorSpecies.h"

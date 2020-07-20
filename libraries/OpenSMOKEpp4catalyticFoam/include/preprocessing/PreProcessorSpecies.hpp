@@ -174,15 +174,8 @@ namespace OpenSMOKE
 			typename Thermo::map_species::iterator thermo_it=thermo_species.find(kinetics.names_species()[i]);
 			if( thermo_it == thermo_species.end())
 			{
-				if (kinetics.names_species()[i] == "R" || kinetics.names_species()[i] == "RH")
-				{
-					iThermoFound == true;
-				}
-				else
-				{
 					iThermoFound = false;
 					std::cout << "Error: This species is not available in thermodynamic database: " << kinetics.names_species()[i] << std::endl;
-				}
 			}
 			
 			if (iThermoFound == true)
@@ -454,81 +447,6 @@ namespace OpenSMOKE
 		fOutput << "------------------------------------------------------------------------------------";
 		fOutput << std::setfill('-');
 		fOutput << std::setw(8*(atomicTable_.element_weights_list().size()-1)+2) << "-" << std::endl;
-		fOutput << std::setfill(' ');
-		fOutput << std::endl;
-
-		this->WriteReorderedElementTableOnASCIIFile(fOutput);
-
-		this->WriteTransportTableOnASCIIFile(fOutput);
-
-		return true;
-	}
-
-	template<typename Species>
-	bool PreProcessorSpecies<Species>::WriteReorderedElementTableOnASCIIFile(std::ostream& fOutput) const
-	{
-		unsigned int nrows = this->species_.size();
-		unsigned int ncols = atomicTable_.element_weights_list().size();
-
-		std::vector<size_t> indices_reordered(nrows);
-		for (unsigned int i = 0; i < this->species_.size(); i++)
-			indices_reordered[i] = i;
-
-		Eigen::MatrixXd elements_reordered(nrows, ncols);
-		for (unsigned int i = 0; i < this->species_.size(); i++)
-			for (int j = 0; j < atomicTable_.element_weights_list().size(); j++)
-				elements_reordered(i, j) = atomicTable_.element_coefficients_list()(i, j);
-
-		for(int jcol=ncols-1;jcol>=0;jcol--)
-		{
-			std::vector<size_t> indices_current = indices_reordered;
-			Eigen::MatrixXd elements_current = elements_reordered;
-
-			std::vector<double> element(nrows);
-			for (unsigned int i = 0; i < this->species_.size(); i++)
-				element[i] = elements_current(i, jcol);
-
-			std::vector<size_t> indices = SortAndTrackIndicesIncreasing(element);
-			for (unsigned int i = 0; i < this->species_.size(); i++)
-			{
-				elements_reordered.row(i) = elements_current.row(indices[i]);
-				indices_reordered[i] = indices_current[indices[i]];
-			}
-		}
-
-		fOutput << "------------------------------------------------------------------------------------";
-		fOutput << std::setfill('-');
-		fOutput << std::setw(8 * (atomicTable_.element_weights_list().size() - 1) + 2) << "-" << std::endl;
-		fOutput << std::setfill(' ');
-		fOutput << "                                                Molecular        Temperature        Elements" << std::endl;
-		fOutput << "  Species                  Phase  Charge         weight         Low      High";
-		for (int i = 0; i<atomicTable_.element_weights_list().size(); i++)
-			fOutput << std::setw(8) << std::right << atomicTable_.element_names_list()[i];
-		fOutput << std::endl;
-		fOutput << "------------------------------------------------------------------------------------";
-		fOutput << std::setfill('-');
-		fOutput << std::setw(8 * (atomicTable_.element_weights_list().size() - 1) + 2) << "-" << std::endl;
-		fOutput << std::setfill(' ');
-
-		for (unsigned int ii = 0; ii<this->species_.size(); ii++)
-		{
-			unsigned int i = indices_reordered[ii];
-
-			fOutput << std::right << std::setw(5) << i + 1;
-			fOutput << ". ";
-			fOutput << std::setw(20) << std::left << this->species_[i].name();
-			fOutput << std::setw(3) << std::right << this->species_[i].phase();
-			fOutput << std::setw(7) << std::right << 0;
-			fOutput << std::setw(20) << std::fixed << std::right << std::setprecision(6) << this->species_[i].MolecularWeight();
-			fOutput << std::setw(10) << std::right << std::setprecision(2) << this->species_[i].Tlow();
-			fOutput << std::setw(10) << std::right << std::setprecision(2) << this->species_[i].Thigh();
-			for (int j = 0; j<atomicTable_.element_weights_list().size(); j++)
-				fOutput << std::setw(8) << std::setprecision(0) << std::fixed << std::right << atomicTable_.element_coefficients_list()(i, j);
-			fOutput << std::endl;
-		}
-		fOutput << "------------------------------------------------------------------------------------";
-		fOutput << std::setfill('-');
-		fOutput << std::setw(8 * (atomicTable_.element_weights_list().size() - 1) + 2) << "-" << std::endl;
 		fOutput << std::setfill(' ');
 		fOutput << std::endl;
 

@@ -135,7 +135,7 @@ namespace OpenSMOKE
 		bool CheckThermodynamicConsistency(std::ostream& flog);
 
 		/**
-		* This function reformulates the thermodynamic properties in order to ensure their consistency.
+		* This function reformulates the thermodynamic properties in order to ensure thei consistency.
 		  In particular, the new formulation ensure the continuity of the first, second and third derivates
 		  and chooses the intermediate temperature in order to minimize the fitting error with respect to
 		  the original thermodynamic data. This function can be used only if the original thermodynamic
@@ -143,15 +143,6 @@ namespace OpenSMOKE
 		  can be accepted.
 		*/
 		bool ReformulationOfThermodynamics(const std::string file_name, const std::string original_file_name);
-
-		/**
-		* This function reformulates the thermodynamic properties in order to ensure their consistency.
-		In particular, the new formulation ensure the continuity of the first, second and third derivates. 
-		This function can be used only if the original thermodynamic data are correct, 
-		i.e. no macroscopic error exist. This means that only small inaccuracies
-		can be accepted.
-		*/
-		bool ReformulationOfThermodynamicsFixedIntermediateTemperature(const std::string file_name, const std::string original_file_name);
 
 		/**
 		* This function analyzes the thermodnamic data for all the species and checks the continuity

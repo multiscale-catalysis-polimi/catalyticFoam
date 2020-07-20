@@ -16,3 +16,7 @@ echo "Compiling catalyticFoam solver"
 cd ../solver
 wclean
 wmake
+
+cd ../preprocessor-kinetic
+wclean
+wmake

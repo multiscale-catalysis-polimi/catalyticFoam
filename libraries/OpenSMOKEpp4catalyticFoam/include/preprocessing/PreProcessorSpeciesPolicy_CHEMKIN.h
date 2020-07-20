@@ -137,18 +137,7 @@ namespace OpenSMOKE
 		*/
 		bool CheckThermodynamicConsistency(std::ostream& flog);
 
-		/**
-		*@brief Thermodynamics of the species is reformulated in order to ensure
-		*       the continuity of the function and its main derivatives
-		*       The intermediate temperature is chosen to minimize the error.
-		*/
 		bool ReformulationOfThermodynamics(std::ostream& flog);
-
-		/**
-		*@brief Thermodynamics of the species is reformulated in order to ensure
-		*       the continuity of the function and its main derivatives
-		*/
-		bool ReformulationOfThermodynamicsFixedIntermediateTemperature(std::ostream& flog);
 
 		bool StatusOfThermodynamics(std::ostream& flog);
 

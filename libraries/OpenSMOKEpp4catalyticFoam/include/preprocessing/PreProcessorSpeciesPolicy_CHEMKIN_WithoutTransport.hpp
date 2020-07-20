@@ -253,7 +253,7 @@ namespace OpenSMOKE
 		flog << std::endl;
 		
 		flog << "THERMO ALL" << std::endl;
-		flog << "270.   1000.   3500. " << std::endl;
+		flog << "300.   1000.   3500. " << std::endl;
 		for(unsigned int i=0;i<species_.size();i++)
 			species_[i].ReformulationOfThermodynamics(flog, 1, 1000., 3500.);
 		flog << "END" << std::endl;
@@ -262,34 +262,6 @@ namespace OpenSMOKE
 		return true;
 	}
 
-	template<typename Species>
-	bool PreProcessorSpeciesPolicy_CHEMKIN_WithoutTransport<Species>::ReformulationOfThermodynamicsFixedIntermediateTemperature(const std::string file_name, const std::string original_file_name)
-	{
-		boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-		std::stringstream date_today;
-		date_today << static_cast<int>(now.date().month()) << "/" << now.date().day() << "/" << now.date().year();
-
-		std::ofstream flog(file_name.c_str(), std::ios::out);
-		CheckIfFileIsOpen(flog, file_name);
-
-		flog << "! This thermodynamic database was obtained by fitting the thermodynamic properties" << std::endl;
-		flog << "! extracted from the following file: " << original_file_name << std::endl;
-		flog << "! The thermodynamic properties are fitted in order to preserve not only the " << std::endl;
-		flog << "! continuity of each function at the intermediate temperature, but also the  continuity" << std::endl;
-		flog << "! of the derivatives, from the 1st to the 3rd order" << std::endl;
-		flog << "! The intermediate temperatures are the same for all the species." << std::endl;
-		flog << "! Last update: " << date_today.str() << std::endl;
-		flog << std::endl;
-
-		flog << "THERMO ALL" << std::endl;
-		flog << "270.   1000.   3500. " << std::endl;
-		for (unsigned int i = 0; i<species_.size(); i++)
-			species_[i].ReformulationOfThermodynamicsFixedIntermediateTemperature(flog, 1, 1000., 3500.);
-		flog << "END" << std::endl;
-		flog.close();
-
-		return true;
-	}
 
 	template<typename Species>
 	bool PreProcessorSpeciesPolicy_CHEMKIN_WithoutTransport<Species>::StatusOfThermodynamics(const std::string file_name)
@@ -593,17 +565,6 @@ namespace OpenSMOKE
 		std::ofstream fOutput;
 		fOutput.open(file_name.c_str(), std::ios::out);
 
-		// Print table
-		fOutput << "-----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-		fOutput << "Name                              MW       Cp@298K        H@298K        G@298K        S@298K      Cp@1000K       H@1000K       G@1000K       S@1000K " << std::endl;
-	    fOutput << "                           [kg/kmol]   [cal/mol/K]    [kcal/mol]    [kcal/mol]   [cal/mol/K]   [cal/mol/K]    [kcal/mol]    [kcal/mol]   [cal/mol/K] " << std::endl;
-		fOutput << "-----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-		for (unsigned int i = 0; i<NC; i++)
-			species_[i].ThermodynamicsStatus(fOutput);
-		fOutput << "-----------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
-		fOutput << std::endl;
-
-		// Print individual species
 		std::vector<double> T(12);
 		T[0]=300.;	T[1]=600.;
 		for(unsigned int i=2;i<12;i++)

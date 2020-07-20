@@ -160,7 +160,7 @@ namespace OpenSMOKE
 	
 		// Reduced dipolar moment for polar molecules
 		for(unsigned int i=1;i<=this->NC;i++)
-			muStar[i] = mu[i] / sqrt(epsylon[i]*boost::math::pow<3>(sigma[i])); // [-]
+			muStar[i] = mu[i] / std::sqrt(epsylon[i]*boost::math::pow<3>(sigma[i])); // [-]
 	
 		// The thermal diffusivities are calculated only the light species
 		for(unsigned int i=1;i<=this->NC;i++)
@@ -204,20 +204,20 @@ namespace OpenSMOKE
 	// Dipolar collision moment [sqrt(A3.erg)]
 	double mujk(const double mu_j, const double mu_k)
 	{
-		return sqrt(mu_j * mu_k);	// 
+		return std::sqrt(mu_j * mu_k);	// 
 	}
 
 	// Dipole effective collision moment (5.14)
 	double mujkStar(const double mu_j, const double mu_k, const double epsjk_over_kb, const double sigmajk)
 	{
-		return mujk(mu_j, mu_k)  / sqrt( (epsjk_over_kb*PhysicalConstants::kBoltzmann*1.e7) * boost::math::pow<3>(sigmajk)); // [-]
+		return mujk(mu_j, mu_k)  / std::sqrt( (epsjk_over_kb*PhysicalConstants::kBoltzmann*1.e7) * boost::math::pow<3>(sigmajk)); // [-]
 	}
 
 	template<typename Species>
 	void PreProcessorSpeciesPolicy_CHEMKIN_WithTransport<Species>::LennardJonesPotentialAndCollisionDiameter(const int j, const int k, double& epsjk_over_kb, double& sigmajk)
 	{
 		// Lennard-Jones potentials
-		epsjk_over_kb = sqrt(epsylon_over_kb[j] * epsylon_over_kb[k]);	// [K]
+		epsjk_over_kb = std::sqrt(epsylon_over_kb[j] * epsylon_over_kb[k]);	// [K]
 
 		// Lennard-Jones collision diameters
 		sigmajk = .5 * (sigma[j] + sigma[k]);	
@@ -230,7 +230,7 @@ namespace OpenSMOKE
 			double alfaStar = alfa[j] / boost::math::pow<3>(sigma[j]);	//[-]
 
 			// c. Correction coefficient (5.12)
-			double xsi = 1. + .25 * alfaStar * boost::math::pow<2>(muStar[k]) * sqrt(epsylon[k] / epsylon[j]); //[-]
+			double xsi = 1. + .25 * alfaStar * boost::math::pow<2>(muStar[k]) * std::sqrt(epsylon[k] / epsylon[j]); //[-]
 
 			// d. corrections
 			epsjk_over_kb *= (xsi * xsi);		// (5.9)
@@ -243,7 +243,7 @@ namespace OpenSMOKE
 			double alfaStar = alfa[k] / boost::math::pow<3>(sigma[k]);	//[-]
 
 			// c. Correction coefficient (5.12)
-			double xsi = 1. + .25 * alfaStar * boost::math::pow<2>(muStar[j]) * sqrt(epsylon[j] / epsylon[k]); //[-]
+			double xsi = 1. + .25 * alfaStar * boost::math::pow<2>(muStar[j]) * std::sqrt(epsylon[j] / epsylon[k]); //[-]
 
 			// d. corrections
 			epsjk_over_kb *= (xsi * xsi);		// (5.9)
@@ -254,7 +254,7 @@ namespace OpenSMOKE
 	template<typename Species>
 	double PreProcessorSpeciesPolicy_CHEMKIN_WithTransport<Species>::UncorrectedLennardJonesPotential(const int j, const int k) const
 	{
-		return sqrt(epsylon_over_kb[j] * epsylon_over_kb[k]);	// [K]
+		return std::sqrt(epsylon_over_kb[j] * epsylon_over_kb[k]);	// [K]
 	}
 
 	template<typename Species>
@@ -267,7 +267,7 @@ namespace OpenSMOKE
 				LennardJonesPotentialAndCollisionDiameter(j, k, epsylonjk_over_kb_, sigmajk_);
 
 				deltajkStar[j][k] = 0.5*boost::math::pow<2>( mujkStar( mu[j], mu[k], epsylonjk_over_kb_, sigmajk_) );
-				coeff_Djk[j][k] = 2.6693e-7  / ( sqrt(Mjk(this->MW[j],this->MW[k]))*boost::math::pow<2>(sigmajk_) );
+				coeff_Djk[j][k] = 2.6693e-7  / ( std::sqrt(Mjk(this->MW[j],this->MW[k]))*boost::math::pow<2>(sigmajk_) );
 			}
 	}
 
@@ -277,7 +277,7 @@ namespace OpenSMOKE
 		for(unsigned int k=1;k<=this->NC;k++)
 		{
 			// Parker-Brau-Jonkman at 298K (5.33)
-			double aux = sqrt(epsylon_over_kb[k] / 298.); //[-]
+			double aux = std::sqrt(epsylon_over_kb[k] / 298.); //[-]
 			f298[k] = 1. + aux * ( ZROTA + aux * (ZROTB + aux * ZROTC)); // [-]
 		}
 
@@ -297,7 +297,7 @@ namespace OpenSMOKE
 
 		// Coefficient for the evaluation of binary coefficients
 		for(unsigned int k=1;k<=this->NC;k++)
-				coeff_Dkk[k] = 2.6693e-7  / ( sqrt(this->MW[k])*boost::math::pow<2>(sigma[k]) );
+				coeff_Dkk[k] = 2.6693e-7  / ( std::sqrt(this->MW[k])*boost::math::pow<2>(sigma[k]) );
 	}
 
 	template<typename Species>
@@ -305,7 +305,7 @@ namespace OpenSMOKE
 	{
 		// Coefficient for the evaluation of viscosity of single species
 		for(unsigned int k=1;k<=this->NC;k++)
-			coeff_eta[k] = 26.693e-7 * sqrt(this->MW[k]) / boost::math::pow<2>(sigma[k]);
+			coeff_eta[k] = 26.693e-7 * std::sqrt(this->MW[k]) / boost::math::pow<2>(sigma[k]);
 	}
 
 	template<typename Species>
@@ -315,7 +315,7 @@ namespace OpenSMOKE
 		// The temperature must be provided in K
 
 		ReducedTemperatureSingleSpecies(T);
-		Omega22k(TkStar, deltakStar, omega22k, this->names_);
+		Omega22k();
 		SingleSpeciesViscosity(T);
 	}
 
@@ -356,7 +356,7 @@ namespace OpenSMOKE
 
 				double epsylonjk_over_kb_, sigmajk_;
 				LennardJonesPotentialAndCollisionDiameter(k, j, epsylonjk_over_kb_, sigmajk_);
-				double TSLOG = log(T/epsylonjk_over_kb_);
+				double TSLOG = std::log(T/epsylonjk_over_kb_);
 
 				double T1 = TSLOG;
 				double T2 = TSLOG*T1;
@@ -424,7 +424,7 @@ namespace OpenSMOKE
 		double uT = 1./T;
 		for(unsigned int k=1;k<=this->NC;k++)
 		{
-			double aux = sqrt(epsylon_over_kb[k] * uT);
+			double aux = std::sqrt(epsylon_over_kb[k] * uT);
 			fT[k] = 1. + aux * ( ZROTA + aux * ( ZROTB + aux * ZROTC));
 		}
 	}
@@ -512,6 +512,134 @@ namespace OpenSMOKE
 	}
 
 	template<typename Species>
+	double PreProcessorSpeciesPolicy_CHEMKIN_WithTransport<Species>::CollisionIntegral11(double tjk, double djk)
+	{
+		// In the future, the OpenSMOKEVector will be removed
+		// For this purpose the LocateInSortedVectorFunction is required
+		OpenSMOKE::OpenSMOKEVectorDouble deltaStar(8);
+		for (unsigned int i = 0; i < 8; i++)
+			deltaStar[i + 1] = CollisionIntegralMatrices::deltaStar(i);
+		OpenSMOKE::OpenSMOKEVectorDouble TStar(37);
+		for (unsigned int i = 0; i < 37; i++)
+			TStar[i + 1] = CollisionIntegralMatrices::TStar(i);
+
+		int itStar,idStar;
+		double	udx21,udx321,dx31,dx32,dxx1,dxx2,x1,x2,x3,y1,y2,y3,a1,a2,a3;
+
+		if ( djk < -0.00001 )
+			std::cout << "Warning: Diffusivity collision integral undefined (1)" << std::endl;
+
+		if ( djk > 2.5 )
+			std::cout << "Warning: Diffusivity collision integral undefined (2)" << std::endl;
+
+		if ( tjk < 0.09 )
+		{
+			//cout << "Diffusivity collision integral undefined (3)" << endl;
+			tjk = 0.09;
+		}
+
+		if ( tjk > 500.)
+			std::cout << "Warning: Diffusivity collision integral undefined (4)" << std::endl;
+
+		if ( std::fabs(djk)>1.e-5 && tjk>75.)
+			std::cout << "Warning: Diffusivity collision integral undefined (5)" << std::endl;
+
+
+		// 1. TjkStar is larger than the last tabulated element
+		if(tjk > TStar[36])
+			return ( .623 + tjk * (-.136e-2 + tjk * (.346e-5 - tjk * .343e-8)) );
+
+		// 2. deltajkStar is smaller than the first tabulated element
+		if(std::fabs(djk) <= 1.e-5)
+		{
+			// interpolates using only the first column
+			if(tjk <  TStar[2])
+				itStar = 1;
+			else
+				itStar = TStar.LocateInSortedVector(tjk);
+
+			// iterpolation
+			x1 = TStar[itStar];
+			x2 = TStar[itStar + 1];
+			x3 = TStar[itStar + 2];
+			udx21 = 1. / (x2 - x1);
+			dx31 = x3 - x1;
+			dx32 = x3 - x2;
+			dxx1 = tjk - x1;
+			dxx2 = tjk - x2;
+			udx321 = 1. / (dx31 * dx32);
+
+			// first interpolation with respect to TStar
+			a1 = CollisionIntegralMatrices::O37_8(itStar-1,  0);
+			a2 = (CollisionIntegralMatrices::O37_8(itStar,   0) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::O37_8(itStar+1, 0) - a1 - a2 * dx31) * udx321;
+
+			return ( a1 + dxx1 * ( a2 + a3 * dxx2) );
+		}
+
+		// 3. General case
+
+			// Finds the position of *tjk on the TStar vector
+			if(tjk <  TStar[2])
+				itStar = 1;
+			else
+				itStar = TStar.LocateInSortedVector(tjk);
+
+			// Finds the position of *djk on the deltaStar vector
+			if(djk < deltaStar[2])
+				idStar = 1;
+			else if(djk > deltaStar[7])
+				idStar = 6;
+			else
+				idStar = deltaStar.LocateInSortedVector(djk);
+
+			// Interpolation
+			x1 = TStar[itStar];
+			x2 = TStar[itStar + 1];
+			x3 = TStar[itStar + 2];
+			udx21 = 1. / (x2 - x1);
+			dx31 = x3 - x1;
+			dx32 = x3 - x2;
+			dxx1 = tjk - x1;
+			dxx2 = tjk - x2;
+			udx321 = 1. / (dx31 * dx32);
+
+			// first interpolation with respect to TStar
+			a1 = CollisionIntegralMatrices::O37_8(itStar-1,idStar-1);
+			a2 = (CollisionIntegralMatrices::O37_8(itStar,idStar-1) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::O37_8(itStar+1,idStar-1) - a1 - a2 * dx31) * udx321;
+			y1 = a1 + dxx1 * ( a2 + a3 * dxx2);
+
+			// second interpolation with respect to TStar
+			a1 = CollisionIntegralMatrices::O37_8(itStar-1,idStar);
+			a2 = (CollisionIntegralMatrices::O37_8(itStar,idStar) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::O37_8(itStar+1,idStar) - a1 - a2 * dx31) * udx321;
+			y2 = a1 + dxx1 * ( a2 + a3 * dxx2);
+
+			// third interpolation with respect to TStar
+			a1 = CollisionIntegralMatrices::O37_8(itStar-1,idStar + 1);
+			a2 = (CollisionIntegralMatrices::O37_8(itStar,idStar + 1) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::O37_8(itStar+1,idStar + 1) - a1 - a2 * dx31) * udx321;
+			y3 = a1 + dxx1 * ( a2 + a3 * dxx2);
+
+			// first interpolation with respect to deltaStar
+			x1 = deltaStar[idStar];
+			x2 = deltaStar[idStar + 1];
+			x3 = deltaStar[idStar + 2];
+			udx21 = 1. / (x2 - x1);
+			dx31 = x3 - x1;
+			dx32 = x3 - x2;
+			dxx1 = djk - x1;
+			dxx2 = djk - x2;
+			udx321 = 1. / (dx31 * dx32);
+			a1 = y1;
+			a2 = (y2 - a1) * udx21;
+			a3 = (y3 - a1 - a2 * dx31) * udx321;
+
+			return ( a1 + dxx1 * ( a2 + a3 * dxx2));
+	}
+
+	template<typename Species>
 	void PreProcessorSpeciesPolicy_CHEMKIN_WithTransport<Species>::ReducedTemperatureSingleSpecies(const double T)
 	{
 		// This vector is used only as input coordinate for the evaluation of the
@@ -527,9 +655,149 @@ namespace OpenSMOKE
 		// Viscosity of single species [kg/m/s]
 		// Standard kinetic theory expression (5.1)
 
-		double sqrT = sqrt(T);
+		double sqrT = std::sqrt(T);
 		for(unsigned int k=1;k<=this->NC;k++)
 			eta[k] = coeff_eta[k] * sqrT / omega22k[k];
+	}
+
+	template<typename Species>
+	void PreProcessorSpeciesPolicy_CHEMKIN_WithTransport<Species>::Omega22k()
+	{
+		// In the future, the OpenSMOKEVector will be removed
+		// For this purpose the LocateInSortedVectorFunction is required
+		OpenSMOKE::OpenSMOKEVectorDouble deltaStar(8);
+		for (unsigned int i = 0; i < 8; i++)
+			deltaStar[i + 1] = CollisionIntegralMatrices::deltaStar(i);
+		OpenSMOKE::OpenSMOKEVectorDouble TStar(37);
+		for (unsigned int i = 0; i < 37; i++)
+			TStar[i + 1] = CollisionIntegralMatrices::TStar(i);
+
+		int itStar;
+		int idStar;
+
+		double udx21,dx31,dx32,udx321,dxx1,dxx2,x1,x2,x3,y1,y2,y3,a1,a2,a3;
+		double *tk = TkStar.GetHandle();
+		double *dk = deltakStar.GetHandle();
+		double *ok = omega22k.GetHandle();
+
+		for(unsigned int k=1;k<=this->NC;k++)
+		{
+			if( *dk < -0.00001 )
+				std::cout << "Warning: Viscosity-Conductivity collision integral undefined (1) - Species: " << this->names_[k] << std::endl;
+
+			if( *dk > 2.5 )
+				std::cout << "Warning: Viscosity-Conductivity collision integral undefined (2) - Species: " << this->names_[k] << std::endl;
+
+			if( *tk < 0.09 )
+			{
+				std::cout << "Warning: Viscosity-Conductivity collision integral undefined (3) - Species: " << this->names_[k] << std::endl;
+				*tk = 1.00;		// be careful
+			}
+			if( *tk > 500. )
+				std::cout << "Warning: Viscosity-Conductivity collision integral undefined (4) - Species: " << this->names_[k] << std::endl;
+
+			if ( std::fabs(*dk) > 1.e-5 && *tk > 75.)
+				std::cout << "Warning: Viscosity-Conductivity collision integral undefined (5) - Species: " << this->names_[k] << std::endl;
+
+			if(*tk > TStar[36])
+			{
+				*ok = .703 + *tk * (-.146e-2 + *tk * (.357e-5 - *tk * .343e-8));
+				tk++;
+				dk++;
+				ok++;
+				continue;
+			}
+			if(std::fabs(*dk) <= 1.e-5)
+			{
+				// Interpolates using only the first column
+				if(*tk <  TStar[2])
+					itStar = 1;
+				else
+					itStar = TStar.LocateInSortedVector(*tk);
+			
+				// Interpolation
+				x1 = TStar[itStar];
+				x2 = TStar[itStar + 1];
+				x3 = TStar[itStar + 2];
+				udx21 = 1. / (x2 - x1);
+				dx31 = x3 - x1;
+				dx32 = x3 - x2;
+				dxx1 = *tk - x1;
+				dxx2 = *tk - x2;
+				udx321 = 1. / (dx31 * dx32);
+
+				// First interpolation with respect to Tstar
+				a1 = CollisionIntegralMatrices::P37_8(itStar-1,  0);
+				a2 = (CollisionIntegralMatrices::P37_8(itStar,   0) - a1) * udx21;
+				a3 = (CollisionIntegralMatrices::P37_8(itStar+1, 0) - a1 - a2 * dx31) * udx321;
+				*ok = a1 + dxx1 * ( a2 + a3 * dxx2);
+				tk++;
+				dk++;
+				ok++;
+				continue;
+			}
+
+			// Finds the position of *tjk on the TStar vector
+			if(*tk <  TStar[2])
+				itStar = 1;
+			else
+				itStar = TStar.LocateInSortedVector(*tk);
+
+			// Finds the position of *djk on the deltaStar vector
+			if(*dk < deltaStar[2])
+				idStar = 1;
+			else if(*dk > deltaStar[7])
+				idStar = 6;
+			else
+				idStar = deltaStar.LocateInSortedVector(*dk);
+		
+			// Interpolation
+			x1 = TStar[itStar];
+			x2 = TStar[itStar + 1];
+			x3 = TStar[itStar + 2];
+			udx21 = 1. / (x2 - x1);
+			dx31 = x3 - x1;
+			dx32 = x3 - x2;
+			dxx1 = *tk - x1;
+			dxx2 = *tk - x2;
+			udx321 = 1. / (dx31 * dx32);
+		
+			// First interpolation with respect to Tstar
+			a1 = CollisionIntegralMatrices::P37_8(itStar-1, idStar-1);
+			a2 = (CollisionIntegralMatrices::P37_8(itStar,  idStar-1) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::P37_8(itStar+1,idStar-1) - a1 - a2 * dx31) * udx321;
+			y1 = a1 + dxx1 * ( a2 + a3 * dxx2);
+		
+			// Second interpolation with respect to Tstar
+			a1 = CollisionIntegralMatrices::P37_8(itStar-1,  idStar);
+			a2 = (CollisionIntegralMatrices::P37_8(itStar,   idStar) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::P37_8(itStar+1, idStar) - a1 - a2 * dx31) * udx321;
+			y2 = a1 + dxx1 * ( a2 + a3 * dxx2);
+		
+			// Third interpolation with respect to Tstar
+			a1 = CollisionIntegralMatrices::P37_8(itStar-1,  idStar + 1);
+			a2 = (CollisionIntegralMatrices::P37_8(itStar,   idStar + 1) - a1) * udx21;
+			a3 = (CollisionIntegralMatrices::P37_8(itStar+1, idStar + 1) - a1 - a2 * dx31) * udx321;
+			y3 = a1 + dxx1 * ( a2 + a3 * dxx2);
+		
+			// // First interpolation with respect to deltaStar
+			x1 = deltaStar[idStar];
+			x2 = deltaStar[idStar + 1];
+			x3 = deltaStar[idStar + 2];
+			udx21 = 1. / (x2 - x1);
+			dx31 = x3 - x1;
+			dx32 = x3 - x2;
+			dxx1 = *dk - x1;
+			dxx2 = *dk - x2;
+			udx321 = 1. / (dx31 * dx32);
+			a1 = y1;
+			a2 = (y2 - a1) * udx21;
+			a3 = (y3 - a1 - a2 * dx31) * udx321;
+			*ok = a1 + dxx1 * ( a2 + a3 * dxx2);
+			tk++;
+			dk++;
+			ok++;
+		}
 	}
 
 	template<typename Species>
@@ -552,7 +820,7 @@ namespace OpenSMOKE
 			double T=TMIN;
 			for (int i=0;i<nPoints;i++)
 			{
-				double logT = log(T);
+				double logT = std::log(T);
 
 				X(i,0)=1.;
 				X(i,1)=logT;
@@ -577,7 +845,7 @@ namespace OpenSMOKE
 			{
 				SpeciesViscosities(T);
 				for (unsigned int j=1;j<=this->NC;j++)
-					y(i,j-1) = log(eta[j]);
+					y(i,j-1) = std::log(eta[j]);
 				T+=dT;
 			}
 	
@@ -600,7 +868,7 @@ namespace OpenSMOKE
 				SpeciesViscosities(T);
 				SpeciesThermalConductivities(T);
 				for (unsigned int j=1;j<=this->NC;j++)
-					y(i,j-1) = log(lambda[j]);
+					y(i,j-1) = std::log(lambda[j]);
 				T+=dT;
 			}
 	
@@ -625,7 +893,7 @@ namespace OpenSMOKE
 
 				for (unsigned int j=1;j<=this->NC;j++)
 					for (unsigned int k=1;k<=this->NC;k++)
-						y[j-1](i,k-1) = log(Djk[j][k]);
+						y[j-1](i,k-1) = std::log(Djk[j][k]);
 				T+=dT;
 			}
 
@@ -701,10 +969,10 @@ namespace OpenSMOKE
    
 		for(unsigned int i=0;i<this->NC;i++)
 		{
-			double logT  = log(298.);
+			double logT  = std::log(298.);
 			double mu298 = std::exp(fittingEta(0,i)+logT*(fittingEta(1,i)+logT*(fittingEta(2,i)+logT*fittingEta(3,i))));
 		
-				   logT	  = log(1000.);
+				   logT	  = std::log(1000.);
 			double mu1000 = std::exp(fittingEta(0,i)+logT*(fittingEta(1,i)+logT*(fittingEta(2,i)+logT*fittingEta(3,i))));
 
 			fOutput << std::right << std::setw(5) << i+1;
@@ -738,10 +1006,10 @@ namespace OpenSMOKE
    
 		for(unsigned int i=0;i<this->NC;i++)
 		{
-			double logT  = log(298.);
+			double logT  = std::log(298.);
 			double mu298 = std::exp(fittingLambda(0,i)+logT*(fittingLambda(1,i)+logT*(fittingLambda(2,i)+logT*fittingLambda(3,i))));
 		
-				   logT	  = log(1000.);
+				   logT	  = std::log(1000.);
 			double mu1000 = std::exp(fittingLambda(0,i)+logT*(fittingLambda(1,i)+logT*(fittingLambda(2,i)+logT*fittingLambda(3,i))));
 
 			fOutput << std::right << std::setw(5) << i+1;
@@ -785,10 +1053,10 @@ namespace OpenSMOKE
 		{
 			for (unsigned int k=i+1;k<this->NC;k++)
 			{
-				double logT   = log(298.);
+				double logT   = std::log(298.);
 				double Djk298 = std::exp(fittingBinaryDiffusivities[i](0,k)+logT*(fittingBinaryDiffusivities[i](1,k)+logT*(fittingBinaryDiffusivities[i](2,k)+logT*fittingBinaryDiffusivities[i](3,k)))) / P_bar;
 	
-					   logT	    = log(1000.);
+					   logT	    = std::log(1000.);
 				double Djk1000	= std::exp(fittingBinaryDiffusivities[i](0,k)+logT*(fittingBinaryDiffusivities[i](1,k)+logT*(fittingBinaryDiffusivities[i](2,k)+logT*fittingBinaryDiffusivities[i](3,k)))) / P_bar;
 
 
@@ -871,12 +1139,6 @@ namespace OpenSMOKE
 		xml_string << "<Transport type=\"CHEMKIN\">" << std::endl;
 		WriteTransportDataOnASCIIFile(xml_string);
 		xml_string << "</Transport>" << std::endl;
-
-		xml_string << "<Lennard-Jones>" << std::endl;
-		for (unsigned int j = 1; j <= this->NC; j++)
-			xml_string << this->MW[j]/PhysicalConstants::Nav_kmol << " " << sigma[j] * 1.e-10 << " " << epsylon_over_kb[j] << std::endl;
-		xml_string << "</Lennard-Jones>" << std::endl;
-
 		return true;
 	}
 
@@ -998,7 +1260,7 @@ namespace OpenSMOKE
 			const double Tmin = 300.;
 			const double Tmax = 3000.;
 			const double deltaT = 300.;
-			const unsigned int n = static_cast<unsigned int>((Tmax - Tmin) / deltaT) + 1;
+			const unsigned int n = (Tmax - Tmin) / deltaT + 1;
 
 			for (unsigned int i = 0; i < this->NC; i++)
 			for (unsigned int j = i + 1; j < this->NC; j++)
@@ -1061,7 +1323,7 @@ namespace OpenSMOKE
 			}
 
 			// Sort the degree in descending order
-			std::vector<size_t> d_sorted_indices = OpenSMOKE::SortAndTrackIndicesDecreasing(d); 
+			std::vector<size_t> d_sorted_indices = OpenSMOKE::sort_and_track_indices_decreasing(d); 
 
 			// Additional data
 			std::vector<unsigned int> d_transfer(this->NC);
@@ -1164,6 +1426,8 @@ namespace OpenSMOKE
 				fOutput << "</Bundling>" << std::endl;
 			}
 		}
+
+		
 
 		std::cout << "Done" << std::endl;
 	}

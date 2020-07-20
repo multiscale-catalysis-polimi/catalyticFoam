@@ -1,4 +1,4 @@
-/*-----------------------------------------------------------------------*\
+/*----------------------------------------------------------------------*\
 |    ___                   ____  __  __  ___  _  _______                  |
 |   / _ \ _ __   ___ _ __ / ___||  \/  |/ _ \| |/ / ____| _     _         |
 |  | | | | '_ \ / _ \ '_ \\___ \| |\/| | | | | ' /|  _| _| |_ _| |_       |
@@ -37,6 +37,7 @@
 #include "math/OpenSMOKEStdInclude.h"
 #include "math/PhysicalConstants.h"
 #include "kernel/thermo/AtomicCompositionTable.h"
+#include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iterator>
 
@@ -71,27 +72,21 @@ namespace OpenSMOKE
 		//myKinetics->Status(std::cout);
 
 		{
-			// Abstractions (CRECK Modeling standard, not available in original CHEMKIN)
-			std::cout << " * Check if Abstraction Reaction module is available... " << std::endl;
-			abstractions_ = new AbstractionReactions(*myKinetics);
-			if (abstractions_->is_active() == true)
-			{
-				std::cout << " * Found Abstraction Reaction Module... " << std::endl;
-				abstractions_->Checking(*myKinetics);
-				abstractions_->ExtractTables();
-				abstractions_->Summary(std::cout);
-			}
+			std::vector<unsigned int> iElementLines;
+			std::vector<unsigned int> iSpeciesLines;
+			std::vector<unsigned int> iEndLines;
+			std::vector<unsigned int> iThermoLines;
 
-			for (unsigned int j = 0; j<myKinetics->good_lines().size(); j++)
+			for (unsigned int j=0;j<myKinetics->good_lines().size();j++)
 			{
-				size_t found = myKinetics->good_lines()[j].find("REACTIONS");
-				if (found != std::string::npos)
+				size_t found=myKinetics->good_lines()[j].find("REACTIONS");
+				if (found!=std::string::npos)
 				{
 					iReactionLines.push_back(j);
 					break;
 				}
-				found = myKinetics->good_lines()[j].find("reactions");
-				if (found != std::string::npos)
+				found=myKinetics->good_lines()[j].find("reactions");
+				if (found!=std::string::npos)
 				{
 					iReactionLines.push_back(j);
 					break;
@@ -104,10 +99,6 @@ namespace OpenSMOKE
 				return false;
 			}
 
-			std::vector<unsigned int> iElementLines;
-			std::vector<unsigned int> iSpeciesLines;
-			std::vector<unsigned int> iEndLines;
-			std::vector<unsigned int> iThermoLines;
 			for (unsigned int j=0;j<iReactionLines[0];j++)
 			{
 				std::string line = myKinetics->good_lines()[j];
@@ -323,31 +314,11 @@ namespace OpenSMOKE
 				tokenizer_blank tokens(line_species, sep_blank);
 				for (tokenizer_blank::iterator tok_iter = tokens.begin();tok_iter != tokens.end(); ++tok_iter)
 					names_species_.push_back(*tok_iter);
-
-				// Abstractions
-				if (abstractions_->is_active() == true)
-				{
-					names_species_.push_back("R");
-					names_species_.push_back("RH");
-
-					// Check the species
-					if ( abstractions_->CheckListOfSpecies(names_species_) == false)
-						return false;
-				}
 				
-				// Checking if a species appears more tha once
-				{
-					for (unsigned int i = 0; i < names_species_.size(); i++)
-						if (std::count(names_species_.begin(), names_species_.end(), names_species_[i]) > 1)
-						{
-							std::cout << "Reading kinetic scheme. The following species is declared more than once: " << names_species_[i] << std::endl;
-							return false;
-						}
-				}
-
-				// Create the map of species
 				for(unsigned int i=0;i<names_species_.size();i++)
 					map_of_species.insert(std::make_pair(names_species_[i],  i));
+
+				// Checking
 			}
 		}
 
@@ -446,25 +417,6 @@ namespace OpenSMOKE
 		if (number_of_reactions > 20)
 			std::cout << " * Parsing " << number_of_reactions << " reactions: ";
 
-		// Abstractions
-		if (abstractions_->is_active() == true)
-		{
-			for (unsigned int j = 0; j < number_of_reactions; j++)
-			{
-				std::string line = myKinetics->good_lines()[reaction_lines[j]];
-				const int success = abstractions_->ReplaceAbstractionReaction(line);
-
-				if (success == -1)
-				{
-					const unsigned int index_line = myKinetics->indices_of_good_lines()[reaction_lines[j]];
-					std::cout << "Fatal error: please check the abstraction reaction at line: " << index_line << std::endl;
-					return false;
-				}
-
-				myKinetics->ReplaceGoodLine(reaction_lines[j], line);
-			}
-		}
-
 		unsigned int large_error_in_stoichiometries = 0;
 		unsigned int small_error_in_stoichiometries = 0;
 		for (unsigned int j=0;j<number_of_reactions;j++)
@@ -513,11 +465,10 @@ namespace OpenSMOKE
 
 						// Correct the stoichiometry and write the corrected reaction
 						{
-							unsigned int flag = atomicComposition.CorrectStoichiometry(reactions_[j]);
+							atomicComposition.CorrectStoichiometry(reactions_[j]);
 							std::string reaction_string; reactions_[j].GetReactionString(names_species(), reaction_string);
 							boost::erase_all(reaction_string, " ");
-							if (flag == 1)	flog << "Corrected reaction (line " << reaction_lines[j] + 1 << "): " << reaction_string << std::endl;
-							else            flog << "Correction failed for reaction (line " << reaction_lines[j] + 1 << "): " << reaction_string << std::endl;
+							flog << "Corrected reaction (line " << reaction_lines[j] + 1 << "): " << reaction_string << std::endl;
 						}
 					}					
 					flog << std::endl;
@@ -527,88 +478,6 @@ namespace OpenSMOKE
 			{
 				std::cout << "Reading kinetic scheme: error in reaction starting at line " << myKinetics->indices_of_good_lines()[k] << std::endl;
 				return false;
-			}
-		}
-
-		if (abstractions_->is_active() == true)
-		{
-			// Search for abstraction reactions
-			std::vector<unsigned int> list_lines_to_be_exploded;
-			{
-				std::cout << " * Search for abstraction reactions..." << std::endl;
-				
-				unsigned int n_abstraction_reactions = 0;
-				for (unsigned int j = 0; j < number_of_reactions; j++)
-				{
-					const int is_abstraction = abstractions_->ParseReaction(reactions_[j], names_species_);
-
-					if (is_abstraction == 1)	// abstraction reaction
-					{
-						n_abstraction_reactions++;
-						std::vector<unsigned int> list_of_lines;
-						for (unsigned int i = reaction_lines[j]; i < reaction_lines[j + 1]; i++)
-							list_of_lines.push_back(i);
-
-						if (list_of_lines.size() != 1)
-						{
-							std::cout << "The abstraction reactions must be written in a single line. No multiple lines are allowed." << std::endl;
-							std::cout << "Please check the abstraction reaction starting at line: " << reaction_lines[j] << std::endl;
-							return false;
-						}
-						else
-						{
-							list_lines_to_be_exploded.push_back(list_of_lines[0]);
-						}
-					}
-					else if (is_abstraction == -1) // conventional reaction
-					{
-						std::cout << "Please check the abstraction reaction starting at line: " << myKinetics->indices_of_good_lines()[reaction_lines[j]] << std::endl;
-						return false;
-					}
-				}
-
-				std::cout << "   Found (to be exploded): " << n_abstraction_reactions << std::endl;
-			}
-
-			// Check for exisiting abstraction reactions
-			{
-				std::cout << " * Checking for abstraction reactions already available in the mechanism..." << std::endl;
-				unsigned int n_existing_reactions = 0;
-				for (unsigned int j = 0; j < number_of_reactions; j++)
-					n_existing_reactions += abstractions_->RemoveExistingReactions(reactions_[j], names_species_);
-				std::cout << "   Found: " << n_existing_reactions << std::endl;
-			}
-
-			// Exploding abstraction reactions
-			{
-				std::cout << " * Exploding abstraction reactions..." << std::endl;
-				abstractions_->ExplodeReactions();
-			}
-
-			// Write abstraction reactions on EXT file
-			{
-				std::cout << " * Writing abstraction reactions on file..." << std::endl;
-				boost::filesystem::path exploded_file_name = myKinetics->folder_path() / (myKinetics->file_name().string() + ".EXT");
-				std::ofstream fExploded(exploded_file_name.string(), std::ios::out);
-				for (unsigned int j = 0; j < myKinetics->good_lines().size(); j++)
-				{
-					std::vector<unsigned int>::iterator it = std::find(list_lines_to_be_exploded.begin(), list_lines_to_be_exploded.end(), j);
-
-					if (it != list_lines_to_be_exploded.end())
-					{
-						const unsigned int k = std::distance(list_lines_to_be_exploded.begin(), it);
-						abstractions_->exploded()[k].PrintExplodedReactions(fExploded);
-					}
-					else
-					{
-						fExploded << myKinetics->good_lines()[j] << " " << myKinetics->strong_comments()[j] << std::endl;
-					}
-				}
-				fExploded.close();
-
-				// Final message before leaving the pre-processor
-				std::cout << "   Abstractions correctly written on the output file: " << exploded_file_name.string() << std::endl;
-				exit(-1);
 			}
 		}
 
@@ -636,7 +505,6 @@ namespace OpenSMOKE
 			for (unsigned int i=0; i<reactions_.size(); i++)
 				for (unsigned int j=i+1; j<reactions_.size(); j++)
 				{
-					// Check direct vs direct
 					if ( OpenSMOKE_Utilities::compare_vectors( reactions_[i].reactant_nu_indices(), reactions_[j].reactant_nu_indices() ) == true)
 					{
 						if ( OpenSMOKE_Utilities::compare_vectors( reactions_[i].product_nu_indices(), reactions_[j].product_nu_indices() ) == true)
@@ -651,30 +519,6 @@ namespace OpenSMOKE
 										std::cout << "Reaction " << i+1 << " starting at line: " << myKinetics->indices_of_good_lines()[reaction_lines[i]] << std::endl;
 										std::cout << "Reaction " << j+1 << " starting at line: " << myKinetics->indices_of_good_lines()[reaction_lines[j]] << std::endl;
 										return false;
-									}
-								}
-							}
-						}
-					}
-
-					// Check direct vs reverse
-					if (reactions_[i].IsReversible() || reactions_[j].IsReversible())
-					{
-						if (OpenSMOKE_Utilities::compare_vectors(reactions_[i].reactant_nu_indices(), reactions_[j].product_nu_indices()) == true)
-						{
-							if (OpenSMOKE_Utilities::compare_vectors(reactions_[i].product_nu_indices(), reactions_[j].reactant_nu_indices()) == true)
-							{
-								if (reactions_[i].Tag() == reactions_[j].Tag())
-								{
-									if (reactions_[i].IsDuplicate() == false || reactions_[j].IsDuplicate() == false)
-									{
-										if (reactions_[i].pressureDependentSpeciesIndex() == reactions_[j].pressureDependentSpeciesIndex())
-										{
-											std::cout << "The following reactions must be declared as DUPLICATE" << std::endl;
-											std::cout << "Reaction " << i + 1 << " starting at line: " << myKinetics->indices_of_good_lines()[reaction_lines[i]] << std::endl;
-											std::cout << "Reaction " << j + 1 << " starting at line: " << myKinetics->indices_of_good_lines()[reaction_lines[j]] << std::endl;
-											return false;
-										}
 									}
 								}
 							}
@@ -731,7 +575,7 @@ namespace OpenSMOKE
 			for (unsigned int j = 0; j < reactions_.size(); j++)
 			{
 				std::stringstream reaction_data;
-				reactions_[j].GetReactionStringCHEMKIN(names_species(), reaction_data, myKinetics->strong_comments()[reaction_lines[j]]);
+				reactions_[j].GetReactionStringCHEMKIN(names_species(), reaction_data);
 				fOut << reaction_data.str();
 				fOut << std::endl;
 			}
@@ -758,9 +602,9 @@ namespace OpenSMOKE
 		thermodynamics.WriteElementTableOnASCIIFile(fOutput);
 
 		fOutput << "---------------------------------------------------------------------------------------" << std::endl;
-		fOutput << "                                  CHEMICAL REACTIONS                                   " << std::endl;
+		fOutput << "                                  CHEMICAL REACTIONS                                 " << std::endl;
 		fOutput << std::endl;
-		fOutput << "                          Units: [mol, cm3, s] and [cal/mol]                           " << std::endl;
+		fOutput << "                         Units: [kmol, m3, s] and [cal/mol]                          " << std::endl;
 		fOutput << "---------------------------------------------------------------------------------------" << std::endl;
 		fOutput << std::endl;
 		fOutput << std::endl;
@@ -1400,8 +1244,6 @@ namespace OpenSMOKE
 		unsigned int number_of_chebyshev_reactions = 0;
 		
 		unsigned int number_of_pressurelog_reactions = 0;
-		unsigned int number_of_extendedpressurelog_reactions = 0;
-		unsigned int number_of_extendedfalloff_reactions = 0;
 		unsigned int number_of_fit1_reactions = 0;
 		unsigned int number_of_janevlanger_reactions = 0;
 		unsigned int number_of_landauteller_reactions = 0;
@@ -1431,15 +1273,13 @@ namespace OpenSMOKE
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_LINDEMANN_CABR) {number_of_cabr_reactions++; number_of_cabr_lindemann_reactions++; }
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_TROE_CABR) {number_of_cabr_reactions++; number_of_cabr_troe_reactions++; }
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_SRI_CABR) {number_of_cabr_reactions++; number_of_cabr_sri_reactions++; }
-			else if ((*it).Tag() == PhysicalConstants::REACTION_CHEBYSHEV) number_of_chebyshev_reactions++;
-			else if ((*it).Tag() == PhysicalConstants::REACTION_EXTENDEDFALLOFF) number_of_extendedfalloff_reactions++;
+			else if ( (*it).Tag() == PhysicalConstants::REACTION_CHEBYSHEV) number_of_chebyshev_reactions++;
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_SIMPLE)
 			{
-				if ( (*it).IsPressureLog() == true )				number_of_pressurelog_reactions++;
-				else if ((*it).IsExtendedPressureLog() == true)		number_of_extendedpressurelog_reactions++;
-				else if ( (*it).IsJanevLanger() == true )			number_of_janevlanger_reactions++;
-				else if ( (*it).IsFit1() == true )					number_of_fit1_reactions++;
-				else if ( (*it).IsLandauTeller() == true )			number_of_landauteller_reactions++;
+				if ( (*it).IsPressureLog() == true )		number_of_pressurelog_reactions++;
+				else if ( (*it).IsJanevLanger() == true )	number_of_janevlanger_reactions++;
+				else if ( (*it).IsFit1() == true )			number_of_fit1_reactions++;
+				else if ( (*it).IsLandauTeller() == true )	number_of_landauteller_reactions++;
 			}
 		}
 
@@ -1452,8 +1292,6 @@ namespace OpenSMOKE
 		std::vector<unsigned int> indices_of_cabr_reactions(number_of_cabr_reactions);
 		std::vector<unsigned int> indices_of_chebyshev_reactions(number_of_chebyshev_reactions);
 		std::vector<unsigned int> indices_of_pressurelog_reactions(number_of_pressurelog_reactions);
-		std::vector<unsigned int> indices_of_extendedpressurelog_reactions(number_of_extendedpressurelog_reactions);
-		std::vector<unsigned int> indices_of_extendedfalloff_reactions(number_of_extendedfalloff_reactions);
 		std::vector<unsigned int> indices_of_janevlanger_reactions(number_of_janevlanger_reactions);
 		std::vector<unsigned int> indices_of_fit1_reactions(number_of_fit1_reactions);
 		std::vector<unsigned int> indices_of_landauteller_reactions(number_of_landauteller_reactions);
@@ -1641,30 +1479,6 @@ namespace OpenSMOKE
 			fOutput << std::endl;
 		}
 
-		{
-			unsigned int count = 0;
-			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
-				if ((*it).Tag() == PhysicalConstants::REACTION_SIMPLE && (*it).IsExtendedPressureLog() == true) indices_of_extendedpressurelog_reactions[count++] = it - reactions_.begin() + 1;
-
-			fOutput << "extended-pressurelog-reactions" << std::endl;
-			fOutput << number_of_extendedpressurelog_reactions << std::endl;
-			for (unsigned int i = 0; i<number_of_extendedpressurelog_reactions; i++)
-				fOutput << indices_of_extendedpressurelog_reactions[i] << " ";
-			fOutput << std::endl;
-		}
-
-		{
-			unsigned int count = 0;
-			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
-				if ((*it).Tag() == PhysicalConstants::REACTION_EXTENDEDFALLOFF) indices_of_extendedfalloff_reactions[count++] = it - reactions_.begin() + 1;
-
-			fOutput << "extended-falloff-reactions" << std::endl;
-			fOutput << number_of_extendedfalloff_reactions << std::endl;
-			for (unsigned int i = 0; i<number_of_extendedfalloff_reactions; i++)
-				fOutput << indices_of_extendedfalloff_reactions[i] << " ";
-			fOutput << std::endl;
-		}
-
 		{		
 			unsigned int count=0;
 			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
@@ -1705,16 +1519,12 @@ namespace OpenSMOKE
 			OpenSMOKEVectorDouble lnA(reactions_.size());
 			OpenSMOKEVectorDouble Beta(reactions_.size());
 			OpenSMOKEVectorDouble E_over_R(reactions_.size());
-			OpenSMOKEVectorInt    negative_lnA;
 			
 			unsigned int j=1;
 			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
 			{
-				lnA[j] = ((*it).A() == 0.) ? log(1.e-100) : log(std::fabs((*it).A()));
-
-				// Negative frequency factors: list of reactions (1-index based)
-				if ((*it).A() < 0.)
-					negative_lnA.Append(j);
+				//lnA[j] = log((*it).A());
+				lnA[j] = ((*it).A() == 0.) ? std::log(1.e-100) : std::log((*it).A());
 				
 				Beta[j] = (*it).Beta();
 				E_over_R[j] = (*it).E_over_R();
@@ -1723,10 +1533,6 @@ namespace OpenSMOKE
 
 			fOutput << "lnA" << std::endl;
 			lnA.Save(fOutput, OPENSMOKE_FORMATTED_FILE);
-			fOutput << std::endl;
-
-			fOutput << "negative-lnA" << std::endl;
-			negative_lnA.Save(fOutput, OPENSMOKE_FORMATTED_FILE);
 			fOutput << std::endl;
 
 			fOutput << "Beta" << std::endl;
@@ -1747,7 +1553,7 @@ namespace OpenSMOKE
 			for (unsigned int i=0;i<number_of_explicitly_reversible_reactions;i++)
 			{
 				double A = reactions_[indices_of_explicitly_reversible_reactions[i]-1].A_reversible();
-				lnA_reversible[j] = (A == 0.) ? log(1.e-100) : log(A);
+				lnA_reversible[j] = (A == 0.) ? std::log(1.e-100) : std::log(A);
 				Beta_reversible[j] = reactions_[indices_of_explicitly_reversible_reactions[i]-1].Beta_reversible();
 				E_over_R_reversible[j] = reactions_[indices_of_explicitly_reversible_reactions[i]-1].E_over_R_reversible();
 				j++;
@@ -1778,7 +1584,7 @@ namespace OpenSMOKE
 			fOutput << "lnA-falloff-inf" << std::endl;
 			fOutput << number_of_falloff_reactions << std::endl;
 			for (unsigned int i=0;i<number_of_falloff_reactions;i++)
-				fOutput << log( reactions_[indices_of_falloff_reactions[i]-1].A_inf() )<< " ";
+				fOutput << std::log( reactions_[indices_of_falloff_reactions[i]-1].A_inf() )<< " ";
 			fOutput << std::endl;
 
 			fOutput << "Beta-falloff-inf" << std::endl;
@@ -1805,7 +1611,7 @@ namespace OpenSMOKE
 			fOutput << "lnA-cabr-inf" << std::endl;
 			fOutput << number_of_cabr_reactions << std::endl;
 			for (unsigned int i=0;i<number_of_cabr_reactions;i++)
-				fOutput << log( reactions_[indices_of_cabr_reactions[i]-1].A_inf() )<< " ";
+				fOutput << std::log( reactions_[indices_of_cabr_reactions[i]-1].A_inf() )<< " ";
 			fOutput << std::endl;
 
 			fOutput << "Beta-cabr-inf" << std::endl;
@@ -1836,16 +1642,6 @@ namespace OpenSMOKE
 			fOutput << "pressurelog-parameters " << std::endl;
 			for(unsigned int j=0;j<number_of_pressurelog_reactions;j++)
 				reactions_[indices_of_pressurelog_reactions[j]-1].WriteAdditionalDataOnASCIIFile(fOutput);
-		}
-		{
-			fOutput << "extended-pressurelog-parameters " << std::endl;
-			for (unsigned int j = 0; j<number_of_extendedpressurelog_reactions; j++)
-				reactions_[indices_of_extendedpressurelog_reactions[j] - 1].WriteAdditionalDataOnASCIIFile(fOutput);
-		}
-		{
-			fOutput << "extended-falloff-parameters " << std::endl;
-			for (unsigned int j = 0; j<number_of_extendedfalloff_reactions; j++)
-				reactions_[indices_of_extendedfalloff_reactions[j] - 1].WriteAdditionalDataOnASCIIFile(fOutput);
 		}
 		{
 			fOutput << "fit1-parameters " << std::endl;
@@ -1914,8 +1710,6 @@ namespace OpenSMOKE
 		unsigned int number_of_chebyshev_reactions = 0;
 		
 		unsigned int number_of_pressurelog_reactions = 0;
-		unsigned int number_of_extendedpressurelog_reactions = 0;
-		unsigned int number_of_extendedfalloff_reactions = 0;
 		unsigned int number_of_fit1_reactions = 0;
 		unsigned int number_of_janevlanger_reactions = 0;
 		unsigned int number_of_landauteller_reactions = 0;
@@ -1945,12 +1739,10 @@ namespace OpenSMOKE
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_LINDEMANN_CABR) {number_of_cabr_reactions++; number_of_cabr_lindemann_reactions++; }
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_TROE_CABR) {number_of_cabr_reactions++; number_of_cabr_troe_reactions++; }
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_SRI_CABR) {number_of_cabr_reactions++; number_of_cabr_sri_reactions++; }
-			else if ((*it).Tag() == PhysicalConstants::REACTION_CHEBYSHEV) number_of_chebyshev_reactions++;
-			else if ((*it).Tag() == PhysicalConstants::REACTION_EXTENDEDFALLOFF) number_of_extendedfalloff_reactions++;
+			else if ( (*it).Tag() == PhysicalConstants::REACTION_CHEBYSHEV) number_of_chebyshev_reactions++;
 			else if ( (*it).Tag() == PhysicalConstants::REACTION_SIMPLE)
 			{
 				if ( (*it).IsPressureLog() == true )		number_of_pressurelog_reactions++;
-				if ((*it).IsExtendedPressureLog() == true)	number_of_extendedpressurelog_reactions++;
 				else if ( (*it).IsJanevLanger() == true )	number_of_janevlanger_reactions++;
 				else if ( (*it).IsFit1() == true )			number_of_fit1_reactions++;
 				else if ( (*it).IsLandauTeller() == true )	number_of_landauteller_reactions++;
@@ -1966,8 +1758,6 @@ namespace OpenSMOKE
 		std::vector<unsigned int> indices_of_cabr_reactions(number_of_cabr_reactions);
 		std::vector<unsigned int> indices_of_chebyshev_reactions(number_of_chebyshev_reactions);
 		std::vector<unsigned int> indices_of_pressurelog_reactions(number_of_pressurelog_reactions);
-		std::vector<unsigned int> indices_of_extendedpressurelog_reactions(number_of_extendedpressurelog_reactions);
-		std::vector<unsigned int> indices_of_extendedfalloff_reactions(number_of_extendedfalloff_reactions);
 		std::vector<unsigned int> indices_of_janevlanger_reactions(number_of_janevlanger_reactions);
 		std::vector<unsigned int> indices_of_fit1_reactions(number_of_fit1_reactions);
 		std::vector<unsigned int> indices_of_landauteller_reactions(number_of_landauteller_reactions);
@@ -2090,22 +1880,6 @@ namespace OpenSMOKE
 			FormatXML(fOutput, "PressureLog", indices_of_pressurelog_reactions);
 		}
 
-		{
-			unsigned int count = 0;
-			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
-				if ((*it).Tag() == PhysicalConstants::REACTION_SIMPLE && (*it).IsExtendedPressureLog() == true) indices_of_extendedpressurelog_reactions[count++] = boost::lexical_cast<int>(it - reactions_.begin() + 1);
-
-			FormatXML(fOutput, "ExtendedPressureLog", indices_of_extendedpressurelog_reactions);
-		}
-
-		{
-			unsigned int count = 0;
-			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
-				if ((*it).Tag() == PhysicalConstants::REACTION_EXTENDEDFALLOFF) indices_of_extendedfalloff_reactions[count++] = boost::lexical_cast<int>(it - reactions_.begin() + 1);
-
-			FormatXML(fOutput, "ExtendedFallOff", indices_of_extendedfalloff_reactions);
-		}
-
 		{		
 			unsigned int count=0;
 			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
@@ -2134,17 +1908,12 @@ namespace OpenSMOKE
 			OpenSMOKEVectorDouble lnA(boost::lexical_cast<int>(reactions_.size()));
 			OpenSMOKEVectorDouble Beta(boost::lexical_cast<int>(reactions_.size()));
 			OpenSMOKEVectorDouble E_over_R(boost::lexical_cast<int>(reactions_.size()));
-			OpenSMOKEVectorInt    negative_lnA;
 			
 			unsigned int j=1;
 			for (std::vector<ReactionPolicy_CHEMKIN>::const_iterator it = reactions_.begin(); it != reactions_.end(); ++it)
 			{
-				lnA[j] = ((*it).A() == 0.) ? log(1.e-100) : log(std::fabs((*it).A()));
-				
-				// Negative frequency factors: list of reactions (1-index based)
-				if ((*it).A() < 0.)
-					negative_lnA.Append(j);
-
+				//lnA[j] = log((*it).A());
+				lnA[j] = ((*it).A() == 0.) ? std::log(1.e-100) : std::log((*it).A());
 				Beta[j] = (*it).Beta();
 				E_over_R[j] = (*it).E_over_R();
 				j++;
@@ -2160,11 +1929,6 @@ namespace OpenSMOKE
 			fOutput << std::endl;
 			fOutput << "</lnA>" << std::endl;
 
-			fOutput << "<negative-lnA>" << std::endl;
-			negative_lnA.Save(fOutput, OPENSMOKE_FORMATTED_FILE);
-			fOutput << std::endl;
-			fOutput << "</negative-lnA>" << std::endl;
-
 			fOutput << "<Beta>" << std::endl;
 			Beta.Save(fOutput, OPENSMOKE_FORMATTED_FILE);
 			fOutput << std::endl;
@@ -2176,6 +1940,8 @@ namespace OpenSMOKE
 			fOutput << "</E_over_R>" << std::endl;
 			
 			fOutput << "</Direct>" << std::endl;
+
+			
 		}
 
 		if (number_of_explicitly_reversible_reactions != 0)
@@ -2188,7 +1954,7 @@ namespace OpenSMOKE
 			for (unsigned int i=0;i<number_of_explicitly_reversible_reactions;i++)
 			{
 				double A = reactions_[indices_of_explicitly_reversible_reactions[i]-1].A_reversible();
-				lnA_reversible[j] = (A == 0.) ? log(1.e-100) : log(A);
+				lnA_reversible[j] = (A == 0.) ? std::log(1.e-100) : std::log(A);
 				Beta_reversible[j] = reactions_[indices_of_explicitly_reversible_reactions[i]-1].Beta_reversible();
 				E_over_R_reversible[j] = reactions_[indices_of_explicitly_reversible_reactions[i]-1].E_over_R_reversible();
 				j++;
@@ -2234,7 +2000,7 @@ namespace OpenSMOKE
 				fOutput << "<lnA>" << std::endl;
 				fOutput << number_of_falloff_reactions << std::endl;
 				for (unsigned int i=0;i<number_of_falloff_reactions;i++)
-					fOutput << log( reactions_[indices_of_falloff_reactions[i]-1].A_inf() )<< " ";
+					fOutput << std::log( reactions_[indices_of_falloff_reactions[i]-1].A_inf() )<< " ";
 				fOutput << std::endl;
 				fOutput << "</lnA>" << std::endl;
 
@@ -2273,7 +2039,7 @@ namespace OpenSMOKE
 				fOutput << "<lnA>" << std::endl;
 				fOutput << number_of_cabr_reactions << std::endl;
 				for (unsigned int i=0;i<number_of_cabr_reactions;i++)
-					fOutput << log( reactions_[indices_of_cabr_reactions[i]-1].A_inf() )<< " ";
+					fOutput << std::log( reactions_[indices_of_cabr_reactions[i]-1].A_inf() )<< " ";
 				fOutput << std::endl;
 				fOutput << "</lnA>" << std::endl;
 
@@ -2320,22 +2086,6 @@ namespace OpenSMOKE
 				for(unsigned int j=0;j<number_of_pressurelog_reactions;j++)
 					reactions_[indices_of_pressurelog_reactions[j]-1].WriteAdditionalDataOnASCIIFile(fOutput);
 				fOutput << "</PressureLog>" << std::endl;
-			}
-
-			if (number_of_extendedpressurelog_reactions != 0)
-			{
-				fOutput << "<ExtendedPressureLog>" << std::endl;
-				for (unsigned int j = 0; j<number_of_extendedpressurelog_reactions; j++)
-					reactions_[indices_of_extendedpressurelog_reactions[j] - 1].WriteAdditionalDataOnASCIIFile(fOutput);
-				fOutput << "</ExtendedPressureLog>" << std::endl;
-			}
-
-			if (number_of_extendedfalloff_reactions != 0)
-			{
-				fOutput << "<ExtendedFallOff>" << std::endl;
-				for (unsigned int j = 0; j<number_of_extendedfalloff_reactions; j++)
-					reactions_[indices_of_extendedfalloff_reactions[j] - 1].WriteAdditionalDataOnASCIIFile(fOutput);
-				fOutput << "</ExtendedFallOff>" << std::endl;
 			}
 
 			if (number_of_fit1_reactions != 0)

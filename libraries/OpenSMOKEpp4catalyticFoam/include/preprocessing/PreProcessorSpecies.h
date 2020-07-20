@@ -174,12 +174,6 @@ namespace OpenSMOKE
 		bool WriteElementTableOnASCIIFile(std::ostream& fOutput) const;
 
 		/**
-		*@brief Writes the atomic composition of each species in a readable format (tabulated) 
-		        and ordered according to the elemental composition
-		*/
-		bool WriteReorderedElementTableOnASCIIFile(std::ostream& fOutput) const;
-
-		/**
 		*@brief Species bundling accordingly to the specified maximum error
 		*/
 		bool SpeciesBundling(std::stringstream& xml_string, const double epsilon);
