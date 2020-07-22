@@ -142,28 +142,12 @@ void chemComp::growEOA(const VectorXd &phiQ) {
     }
    
     // recompute the ellipsoids axes in the way to use it in the next EOA control
-    if (nSpec_< 100000000)
-	{
-		Eigen::JacobiSVD<MatrixXd> svd(LT_);
-		VectorXd diag = svd.singularValues();
-		rmin_ = 1./diag(0);
-		rmax_ = 1./diag(nSpec_-1);
-	}
-	else
-	{
-		 // disable floating point traps for BDCSVD
-	        int fpe = fegetexcept();
-	        fedisableexcept(FE_ALL_EXCEPT);
-                                                                                                                 	
-		Eigen::BDCSVD<MatrixXd> svd(LT_);
-		VectorXd diag = svd.singularValues();
-		
-		// enable floating point traps after BDCSVD
-		feenableexcept(fpe);
-		
-		rmin_ = 1./diag(0);
-		rmax_ = 1./diag(nSpec_-1);
-	}
+    
+	Eigen::JacobiSVD<MatrixXd> svd(LT_);
+	VectorXd diag = svd.singularValues();
+	rmin_ = 1./diag(0);
+	rmax_ = 1./diag(nSpec_-1);
+	
     
     nGrown_++;
 }
