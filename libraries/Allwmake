@@ -1,4 +1,5 @@
 #!/bin/bash
+
 cd ISAT
 ./make.sh
 cd ..

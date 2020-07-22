@@ -9,9 +9,9 @@ export RAPIDXML_LIBRARY_PATH=$HOME/NumericalLibraries/RapidXML/rapidxml-1.13
 export ISAT_SUPPORT='-DOPENSMOKE_USE_ISAT=1'
 
 #Static linking of libraries
-export CATFOAM_LIBS='-Wl,--start-group -Wl,-Bstatic -lISAT -lOdeChemistryNoMKL -lOpenSMOKEppDictionariesNoMKL -lOpenSMOKEppMapsNoMKL -lOpenSMOKEppKernelNoMKL -lOpenSMOKEppMathNoMKL -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'
+export CATFOAM_LIBS='-Wl,--start-group -Wl,-Bstatic -lISAT -lOdeChemistry -lOpenSMOKEppDictionaries -lOpenSMOKEppMaps -lOpenSMOKEppKernel -lOpenSMOKEppMath -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'
 
-export OPENSMOKE_LIBS='-Wl,--start-group -Wl,-Bstatic -lOpenSMOKEppDictionariesNoMKL -lOpenSMOKEppMapsNoMKL -lOpenSMOKEppKernelNoMKL -lOpenSMOKEppMathNoMKL -Wl,--end-group -Wl,-Bdynamic'
+export OPENSMOKE_LIBS='-Wl,--start-group -Wl,-Bstatic -lOpenSMOKEppDictionaries -lOpenSMOKEppMaps -lOpenSMOKEppKernel -lOpenSMOKEppMath -Wl,--end-group -Wl,-Bdynamic'
 export BOOST_LIBS='-Wl,--start-group -Wl,-Bstatic -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'
-export ODECHEMISTRY_LIBS='-Wl,--start-group -Wl,-Bstatic -lOdeChemistryNoMKL -Wl,--end-group -Wl,-Bdynamic'
+export ODECHEMISTRY_LIBS='-Wl,--start-group -Wl,-Bstatic -lOdeChemistry -Wl,--end-group -Wl,-Bdynamic'
 export ISAT_LIBS='-Wl,--start-group -Wl,-Bstatic -lISAT -Wl,--end-group -Wl,-Bdynamic'

@@ -496,7 +496,7 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
             {
 		std::list<chemComp*> tempLeaves;
                 std::list<chemComp*> tempMFU = mfu_;
-		std::vector<std::pair<bool,bool>> isInLists;
+		std::vector<std::pair<bool,bool> > isInLists;
                 std::list<chemComp*>::iterator it;
                 for(it=mru_.begin(); it != mru_.end(); ++it) 
 		{

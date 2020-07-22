@@ -1,3 +1,5 @@
+#!/bin/bash
+
 source mybashrc
 
 echo "Compiling catalyticWall boundary condition"

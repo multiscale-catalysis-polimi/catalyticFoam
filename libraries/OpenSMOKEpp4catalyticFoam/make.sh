@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir lib
 
 export BOOST_LIBS='-Wl,--start-group -Wl,-Bstatic -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'

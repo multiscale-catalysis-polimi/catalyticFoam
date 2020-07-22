@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir lib
 
 echo "Compiling ISAT..."
