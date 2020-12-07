@@ -79,13 +79,13 @@ namespace OpenSMOKE
 		*@brief This function returns the vector containg the list of reactions
 		*@return the vector containing the list of reactions
 		*/
-		vector_reactions& reactions() { return reactions_; }
+		std::vector<vector_reactions>& reactions() { return reactions_; }
 
 		/**
 		*@brief This function returns the vector containg the list of reactions
 		*@return the vector containing the list of reactions
 		*/
-		const vector_reactions& reactions() const { return reactions_; }
+		const std::vector<vector_reactions>& reactions() const { return reactions_; }
 
 		/**
 		*@brief This function returns the vector containg the list of site species
