@@ -40,12 +40,12 @@
 
 #include "ISAT.h"
 #include <iostream>
-
 /*
  * ISAT: constructor
  */
 ISAT::ISAT(VectorXd scaleFactor, double epsTol, unsigned int nCol) 
 {
+    
     // create a pointer to the three
     chemistryTree_ = new binaryTree();
     
@@ -60,18 +60,13 @@ ISAT::ISAT(VectorXd scaleFactor, double epsTol, unsigned int nCol)
     maxSearchMRU_ = 10;
     maxSearchMFU_ = 30;
     maxSizeBT_ = 50000;
-
-    // set param BTSR;
-    maxLevelBTSR_ = 5;
     
     // flag :
-    //     - search: BTSR, MRU, MFU, BruteForce
+    //     - search: MRU, MFU, BruteForce
     //     - clear if full
-    flagSearchBTSR_ = true; //true;
     flagSearchMRU_ = true;//true;
     flagSearchMFU_ = true;//true;
     flagSearchBruteForce_ = false; //false;
-    flagSearchCL_ = true; //true;
     flagClearingIfFull_ = false;
     flagCleanAndBalance_ = true;
     
@@ -88,10 +83,8 @@ ISAT::ISAT(VectorXd scaleFactor, double epsTol, unsigned int nCol)
     nGrow_=0;
     nUse_=0;
     nBTS_=0;
-    nBTSR_=0;
     nMRU_=0;
     nMFU_=0;
-    nCL_=0;
     nFailBTinEOA_=0;
     
     // balance counter
@@ -136,9 +129,9 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 {
     // BinaryTree Search
     tStartOp_ = double(clock())/CLOCKS_PER_SEC;
-
+ std::cout << "PIPPO" << std::endl;
     chemistryTree_->searchTreeLeaf(phiQ, chemistryTree_->getRoot(), closest);
-
+std::cout << "PIPPO" << std::endl;
     if(!closest) 
     { 
         tEndOp_ = double(clock())/CLOCKS_PER_SEC;
@@ -148,8 +141,7 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
     else 
     {
         chemComp *phi0 = dynamic_cast<chemComp*>(closest);
-        
-	// Binary Tree Search
+        // Binary Tree Search
         if(phi0->inEOA(phiQ)) 
         {
             // retrieve leaf -> add to MRU list
@@ -164,168 +156,6 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
             cpuRet_ += tEndOp_-tStartOp_;
             return true;
         }
-	chemComp* prova = chemistryTree_->getTreeMin();
-	Eigen::VectorXd testp = prova->getPhi()-phiQ;
-	double normp = testp.norm();
-	double normpmin = normp;
-
-	chemComp* minLeaf = prova;
-
-	//Reverse Binary Tree Search
-	if(flagSearchBTSR_)
-	{
-		binaryNode* currentNode = phi0->getNode();
-		binaryNode* previousNode = NULL;
-		unsigned int level=0;
-		bool foundLeaf = false;
-
-		while(currentNode!=NULL && level<=maxLevelBTSR_ && !foundLeaf)
-		{
-			if(level == 0)
-			{
-				if(currentNode->getElRight() == phi0)
-				{
-					chemComp* testLeaf = currentNode->getElLeft();
-
-					if(testLeaf!=NULL && testLeaf->inEOA(phiQ))
-					{
-						nBTSR_++;
-						closest = testLeaf;
-						testLeaf->nUsedPP();
-            					testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-						addToMRU(testLeaf);
-            					addToMFU(testLeaf);
-
-						tEndOp_ = double(clock())/CLOCKS_PER_SEC;
-            					cpuRet_ += tEndOp_-tStartOp_;
-					
-						foundLeaf = true;
-					}
-				}
-				else
-				{
-					chemComp* testLeaf = currentNode->getElRight();
-
-                                        if(testLeaf!=NULL && testLeaf->inEOA(phiQ))
-                                        {
-                                                closest = testLeaf;
-
-                                                nBTSR_++;
-                                                testLeaf->nUsedPP();
-                                                testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-                                                addToMRU(testLeaf);
-                                                addToMFU(testLeaf);
-
-                                                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
-                                                cpuRet_ += tEndOp_-tStartOp_;
-
-                                                foundLeaf = true;
-                                        }
-				}
-			}
-			else
-			{
-				if(currentNode->getRight() == previousNode)
-				{
-					chemComp* testLeaf = currentNode->getElLeft();
-
-					if(testLeaf!=NULL && testLeaf->inEOA(phiQ))
-                                        {
-                                                closest = testLeaf;
-
-                                                nBTSR_++;
-                                                testLeaf->nUsedPP();
-                                                testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-                                                addToMRU(testLeaf);
-                                                addToMFU(testLeaf);
-
-                                                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
-                                                cpuRet_ += tEndOp_-tStartOp_;
-
-                                                foundLeaf = true;
-                                        }
-
-					if(!foundLeaf)
-					{
-						testLeaf =currentNode->getElRight();
-						
-						if(testLeaf!=NULL && testLeaf->inEOA(phiQ))
-						{
-							closest=testLeaf;
-
-							//nBTSR_++;
-							testLeaf->nUsedPP();
-							testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-							addToMRU(testLeaf);
-							addToMFU(testLeaf);
-
-							tEndOp_=double(clock())/CLOCKS_PER_SEC;
-							cpuRet_+=tEndOp_-tStartOp_;
-
-							foundLeaf = true;
-						}
-					}
-				}
-				else
-				{
-					chemComp* testLeaf = currentNode->getElRight();
-
-					if(testLeaf!=NULL && testLeaf->inEOA(phiQ))
-                                        {
-                                                closest = testLeaf;
-
-                                                nBTSR_++;
-                                                testLeaf->nUsedPP();
-                                                testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-                                                addToMRU(testLeaf);
-                                                addToMFU(testLeaf);
-
-                                                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
-                                                cpuRet_ += tEndOp_-tStartOp_;
-
-                                                foundLeaf = true;
-                                        }
-
-					if(!foundLeaf)
-					{
-						testLeaf=currentNode->getElLeft();
-
-						if(testLeaf!=NULL && testLeaf->inEOA(phiQ))
-						{
-							closest=testLeaf;
-
-							nBTSR_++;
-							testLeaf->nUsedPP();
-							testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-							addToMRU(testLeaf);
-							addToMFU(testLeaf);
-
-							tEndOp_=double(clock())/CLOCKS_PER_SEC;
-							cpuRet_+=tEndOp_-tStartOp_;
-
-							foundLeaf=true;
-						}
-					}
-
-				}
-			}
-
-			previousNode = currentNode;
-			currentNode = currentNode->getParent();
-
-			level++;
-		}
-
-		if(foundLeaf)
-			return true;	
-	
-	}	
         
         // MRU search
         std::list<chemComp*> tempMFU = mfu_;
@@ -358,8 +188,7 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
                 cont++;
                 ++iter;
             }  
-        }
- 
+        } 
         // MFU search
         if(flagSearchMFU_)
         { 
@@ -391,51 +220,7 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
                 ++iter;
             }  
         }
-
-	// Closest Leaf Search        
-	if(flagSearchCL_)
-	{
-		chemComp* prova = chemistryTree_->getTreeMin();
-        	Eigen::VectorXd testp = prova->getPhi()-phiQ;
-        	double normp = testp.norm();
-        	double normpmin = normp;
-	
-        	chemComp* minLeaf = prova;
-
-		while(prova!=NULL)
-        	{
-                	prova = chemistryTree_->treeNextLeaf(prova);
-                	if(prova!=NULL)
-                	{
-                        	testp = prova->getPhi()-phiQ;
-                        	normp = testp.norm();
-
-                        	if(normp<normpmin)
-                        	{
-                                	minLeaf=prova;
-                                	normpmin = normp;
-                        	}
-                	}
-		}
-
-		if(minLeaf!=phi0 && minLeaf->inEOA(phiQ))
-		{
-			closest=minLeaf;
-			nCL_++;
-
-			minLeaf->nUsedPP();
-			minLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
-
-			addToMRU(minLeaf);
-			addToMFU(minLeaf);
-
-			tEndOp_=double(clock())/CLOCKS_PER_SEC;
-			cpuRet_+=tEndOp_-tStartOp_;
-
-			return true;
-		}	
-	}
-
+        
         // BruteForce search
         if(flagSearchBruteForce_ && (chemistryTree_->getSize() < 2500) )
         { 
@@ -493,97 +278,55 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
         if(mru_.size() > 0) 
         {
             if(flagClearingIfFull_) // clear the whole tree and add the MRU and MFU
-            {
-		std::list<chemComp*> tempLeaves;
+            { 
+         
+                std::list<chemComp*> tempLeaves;
                 std::list<chemComp*> tempMFU = mfu_;
-		std::vector<std::pair<bool,bool> > isInLists;
                 std::list<chemComp*>::iterator it;
-                for(it=mru_.begin(); it != mru_.end(); ++it) 
-		{
-			std::pair<bool,bool> coupleLists;
+                for(it=mru_.begin(); it != mru_.end(); ++it) {
                         tempLeaves.push_front(new chemComp(**it));
-			coupleLists.first = true;
-			unsigned int sizetempmfu = tempMFU.size();
                         tempMFU.remove(*it);
-			if(sizetempmfu-tempMFU.size()!=0)
-			{
-				coupleLists.second = true;
-			}
-			else
-			{
-				coupleLists.second = false;
-			}
-			isInLists.push_back(coupleLists);
                 }
-
                 // aggiungo le foglie della MFU che non erano presenti nella MRU
-                for(it=tempMFU.begin(); it != tempMFU.end(); ++it) 
-		{
+                for(it=tempMFU.begin(); it != tempMFU.end(); ++it) {
                         tempLeaves.push_front(new chemComp(**it));
-			std::pair<bool,bool> coupleLists;
-			coupleLists.first = false;
-			coupleLists.second = true;
-			isInLists.push_back(coupleLists);
                 }
-
                 // pulisci albero
                 chemistryTree_->clear();
                 nAddFromLastBalance_ = 0;
-
                 // Clear the lists
                 mru_.clear();
                 mfu_.clear();
-		toRemove_.clear();
-
                 // Insert new point
                 chemComp *nPhi = NULL;
                 chemistryTree_->insertNewLeaf(phi,Rphi,A,scaleFactor_,epsTol_,nSpec_,qrType_,nPhi);
-
                 // memorizzo questa foglia in modo da aggiungerla alla MRU in testa dopo averla ripopolata
-		chemComp *phiTemp = chemistryTree_->getTreeMin();
-                
-		// aggiungo gli elementi delle tempMRU
+                chemComp *phiTemp = new chemComp(*chemistryTree_->getTreeMin());
+                // aggiungo gli elementi delle tempMRU
                 std::list<chemComp*>::iterator iter;
-
-		unsigned int itBoolList = isInLists.size()-1;
-
                 // faccio scorrere la lista, se trovo la foglia ottenuta dalla BT la salto
-                for(iter=tempLeaves.begin(); iter != tempLeaves.end(); ++iter) 
-		{
-		    chemComp *newPhi = NULL;
-
+                for(iter=tempLeaves.begin(); iter != tempLeaves.end(); ++iter) {
+                    chemComp *newPhi = NULL;
                     chemistryTree_->insertNewLeaf((*iter)->getPhi(),(*iter)->getRphi(),(*iter)->getMapGrad(),scaleFactor_,epsTol_,nSpec_, qrType_,newPhi);
-
                     // inserisco (se non NULL) nella MRU e nella MFU l'ultima foglia inserita nell'albero
-                    if(newPhi->getNode()->getElRight()) 
-		    {	     
-			     if(isInLists[itBoolList].first)
-                             	mru_.push_front(newPhi->getNode()->getElRight());
-
-			     if(isInLists[itBoolList].second)
-                             	mfu_.push_front(newPhi->getNode()->getElRight());
-                    }
-
+                    if(newPhi->getNode()->getElRight()) {
+                             mru_.push_front(newPhi->getNode()->getElRight());
+                             mfu_.push_front(newPhi->getNode()->getElRight());
+                    }    
                     delete *iter;
-		    itBoolList--;
                 }
-
                 // inserisci primo elemento della lista (ovvero il nuovo punto appena aggiunto)
-                if(mru_.size()<maxSizeMRU_)
-                	mru_.push_front(phiTemp);
-
-		if(mfu_.size()<maxSizeMFU_)
-                	mfu_.push_back(phiTemp);
-
+                mru_.push_front(phiTemp);
+                mfu_.push_back(phiTemp);
                 tempMFU.clear();
                 tempLeaves.clear();
-		nAdd_++;
-
+                 
+                nAdd_++;
                 return true;
             } 
             else 
             { // delete the leaf at the end of the MFU and replace it using this new leaf  
-
+                
                 unsigned int toDel = mfu_.back()->getIndex();
                 bool sameLeaf = false;
                 if( toDel == phi0->getIndex()) {
@@ -599,19 +342,14 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
                     nPhi = dynamic_cast<chemComp*>(phi0);
                 else
                     chemistryTree_->searchTreeLeaf(phi, chemistryTree_->getRoot(), nPhi);
-               
-		//Blocco Test 4
-		//test4_ -= double(std::clock())/CLOCKS_PER_SEC;
+                    
                 chemistryTree_->insertNewLeaf(phi,Rphi,A,scaleFactor_,epsTol_,nSpec_,qrType_,nPhi);
                 phi0 = nPhi;
-		//test4_ += double(std::clock())/CLOCKS_PER_SEC;
-		//Fine Blocco Test 4
 
                 if(phi0->getNode()->getElRight()) {
                         addToMRU(phi0->getNode()->getElRight());
                         addToMFU(phi0->getNode()->getElRight());
-                }
-
+                } 
                 nAdd_++;
                 tEndOp_ = double(clock())/CLOCKS_PER_SEC;
                 cpuAdd_ += tEndOp_-tStartOp_;
@@ -755,19 +493,15 @@ bool ISAT::cleanAndBalance()
 {
     
     std::list<chemComp*>::iterator iter;
-    
     // 1 - remove leaves that have been grown more times than limit
-    for(iter=toRemove_.begin(); iter != toRemove_.end(); ++iter) 
-    {
+    for(iter=toRemove_.begin(); iter != toRemove_.end(); ++iter) {
         cleanLeaf(*iter);
     }
     toRemove_.clear();
-    
     // 2 - scan the entire tree and add the leaf to remove list if:
     //       a) leaf has been used more times than maxUsedTimes_
     //       b) leaf is too old and it is not frequently used
     unsigned int  numberOfEvents = nAdd_+ nUse_ + nGrow_;
-    
     if(flagCleanAndBalance_)
     {
         if( 
@@ -795,15 +529,11 @@ bool ISAT::cleanAndBalance()
                 } 
                 x = chemistryTree_->treeNextLeaf(x);
             }
-
-	    
             // remove selected leaves
             for(iter=rem.begin(); iter != rem.end(); ++iter) 
             {
                 cleanLeaf(*iter);
             }
-	    
-
             // 3 - check the heigth of the tree and balance if needed
             if(double(chemistryTree_->getHeight()) >= (maxHeightCoeff_*std::log(chemistryTree_->getSize())/std::log(2))) 
             {
@@ -815,7 +545,7 @@ bool ISAT::cleanAndBalance()
         nBalance_++;
         return true;
         }
-    }	
+    }
     return false;
 }
 
@@ -865,7 +595,7 @@ void ISAT::addToMRU(chemComp *phi) {
     if(inMRU)
     { //it in in the leaf -> move it to the top
         mru_.remove(*iter);
-        mru_.push_front(phi);
+        mru_.push_front(*iter);
     } 
     else 
     {
@@ -963,15 +693,14 @@ void ISAT::addToMFU(chemComp *phi) {
     
     if(inMFU) //it in in the leaf -> move to rigth position
     { 
+        
         mfu_.remove(*iter); // rimuovo dalla lista
  
         if(mfu_.size() > 1) 
         {
             std::list<chemComp*>::iterator i;
-            for(i=mfu_.end(); i != mfu_.begin(); ) 
+            for(i=mfu_.end(); i != mfu_.begin(); i--) 
             {
-	       i--; //RICCARDO UGLIETTI: ho spostato i-- fuori dalla parentesi del for
-
                if((*i)->getUsed()<=phi->getUsed()) 
                {
                   break;
@@ -983,6 +712,7 @@ void ISAT::addToMFU(chemComp *phi) {
          {
             mfu_.push_front(phi);
          }
+         
     } 
     else 
     {
@@ -993,11 +723,9 @@ void ISAT::addToMFU(chemComp *phi) {
             {
                 // trova la posizione in cui inserirlo
                 std::list<chemComp*>::iterator i;
-                for(i=mfu_.end(); i != mfu_.begin();) 
+                for(i=mfu_.end(); i != mfu_.begin(); i--) 
                 {
-		   i--; //RICCARDO UGLIETTI: ho spostato i-- fuori dalla parantesi del for
-                   
-		   if((*i)->getUsed()<=phi->getUsed()) 
+                   if((*i)->getUsed()<=phi->getUsed()) 
                    {
                        break;
                    }
@@ -1018,6 +746,7 @@ void ISAT::addToMFU(chemComp *phi) {
             }
         }
     }
+    
 }
 /*
  * addToRemoveList: add a leaf to the list of the leaf that will be removed

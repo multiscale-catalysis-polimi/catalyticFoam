@@ -71,7 +71,11 @@
 
 		TEqn.relax();
 		fvOptions.constrain(TEqn);
-		TEqn.solve(mesh.solver("T"));
+		#if OFVERSION > 60
+			TEqn.solve("T");
+		#else
+			TEqn.solve(mesh.solver("T"));
+		#endif
 		fvOptions.correct(T);			
 
     }

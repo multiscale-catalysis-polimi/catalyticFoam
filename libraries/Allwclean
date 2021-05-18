@@ -7,6 +7,6 @@ echo "Cleaning odeChemistry..."
 rm -rf odeChemistry/lib
 
 echo "Cleaning OpenSMOKEpp..."
-rm -rf OpenSMOKEpp/lib
+rm -rf OpenSMOKEpp4catalyticFoam/lib
 
 

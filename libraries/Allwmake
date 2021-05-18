@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cd ISAT
-./make.sh
+cd isat
+wmake
 cd ..
 
 echo " "

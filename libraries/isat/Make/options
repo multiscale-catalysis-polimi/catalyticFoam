@@ -1,0 +1,8 @@
+EXE_INC = \
+    -w \
+    -std=c++11 \
+    -I$(EIGEN_LIBRARY_PATH)/include \
+    -I$(EIGEN_LIBRARY_PATH) 
+
+LIB_LIBS =
+

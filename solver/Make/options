@@ -7,7 +7,7 @@ EXE_INC = \
 	$(ISAT_SUPPORT) \
 	-I../libraries/odeChemistry/include \
 	-I../libraries/OpenSMOKEpp4catalyticFoam/include \
-	-I../libraries/ISAT/include \
+	-I../libraries/isat \
 	-Iisat \
 	-I$(BOOST_LIBRARY_PATH)/include \
 	-I$(EIGEN_LIBRARY_PATH) \
@@ -19,9 +19,9 @@ EXE_INC = \
 	-I$(LIB_SRC)/sampling/lnInclude
 
 EXE_LIBS = \
+        -L$(FOAM_USER_LIBBIN) \
 	-L../libraries/OpenSMOKEpp4catalyticFoam/lib \
 	-L../libraries/odeChemistry/lib \
-	-L../libraries/ISAT/lib \
 	-L$(BOOST_LIBRARY_PATH)/lib \
 	$(CATFOAM_LIBS) \
 	-lfiniteVolume \

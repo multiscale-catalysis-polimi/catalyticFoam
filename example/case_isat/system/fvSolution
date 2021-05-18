@@ -69,6 +69,18 @@ solvers
         relTol          1e-07;
     }
 
+    YiFinal
+    {
+        $Yi;
+        relTol          0;
+    }
+
+    TFinal
+    {
+        $T;
+        relTol          0;
+    }
+
 }
 
 PIMPLE

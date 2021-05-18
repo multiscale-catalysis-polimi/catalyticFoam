@@ -1,0 +1,13 @@
+$(OBJECTS_DIR)/ISAT.o: ISAT.dep
+ISAT.dep: ISAT.cpp
+ISAT.dep: ISAT.h
+ISAT.dep: binaryTree.h
+ISAT.dep: binaryNode.h
+ISAT.dep: chemComp.h
+ISAT.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/Core
+ISAT.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/QR
+ISAT.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/SVD
+$(OBJECTS_DIR)/ISAT.o: $(EXE_DEP)
+$(OBJECTS_DIR)/ISAT.o:
+	@SOURCE_DIR=.
+	SOURCE=ISAT.cpp ; $(cpptoo)

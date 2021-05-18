@@ -1,0 +1,11 @@
+$(OBJECTS_DIR)/binaryNode.o: binaryNode.dep
+binaryNode.dep: binaryNode.cpp
+binaryNode.dep: binaryNode.h
+binaryNode.dep: chemComp.h
+binaryNode.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/Core
+binaryNode.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/QR
+binaryNode.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/SVD
+$(OBJECTS_DIR)/binaryNode.o: $(EXE_DEP)
+$(OBJECTS_DIR)/binaryNode.o:
+	@SOURCE_DIR=.
+	SOURCE=binaryNode.cpp ; $(cpptoo)

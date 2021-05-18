@@ -1,0 +1,10 @@
+$(OBJECTS_DIR)/chemComp.o: chemComp.dep
+chemComp.dep: chemComp.cpp
+chemComp.dep: chemComp.h
+chemComp.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/Core
+chemComp.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/QR
+chemComp.dep: /home/mauro/NumericalLibraries/Eigen/eigen-3.2.4/Eigen/SVD
+$(OBJECTS_DIR)/chemComp.o: $(EXE_DEP)
+$(OBJECTS_DIR)/chemComp.o:
+	@SOURCE_DIR=.
+	SOURCE=chemComp.cpp ; $(cpptoo)

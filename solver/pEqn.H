@@ -53,7 +53,11 @@ volScalarField rAU(1.0/UEqn.A());
 surfaceScalarField rhorAUf("rhorAUf", fvc::interpolate(rho*rAU));
 volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p));
 
+#if OFVERSION >= 70
+if (pimple.nCorrPiso() <= 1)
+#else
 if (pimple.nCorrPISO() <= 1)
+#endif
 {
     tUEqn.clear();
 }
@@ -83,7 +87,11 @@ if (pimple.transonic())
             fvOptions(psi, p, rho.name())
         );
 
-        pEqn.solve(mesh.solver(p.select(pimple.finalInnerIter())));
+        #if OFVERSION >= 70
+		pEqn.solve();
+		#else
+		pEqn.solve(mesh.solver(p.select(pimple.finalInnerIter())));
+		#endif
 
         if (pimple.finalNonOrthogonalIter())
         {
@@ -118,7 +126,11 @@ else
             fvOptions(psi, p, rho.name())
         );
 
-        pEqn.solve(mesh.solver(p.select(pimple.finalInnerIter())));
+        #if OFVERSION >= 70
+		pEqn.solve();
+		#else
+		pEqn.solve(mesh.solver(p.select(pimple.finalInnerIter())));
+		#endif
 
         if (pimple.finalNonOrthogonalIter())
         {
