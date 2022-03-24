@@ -94,7 +94,7 @@ namespace OpenSMOKE
 			kinetics_preprocessor_.reactions()[i].WriteSummary(fOutput, kinetics_map_.NamesOfSpecies(), i+1);
 			const double conversion_forward = kinetics_preprocessor_.reactions()[i].GetForwardConversionFactor();
 			const double conversion_backward = kinetics_preprocessor_.reactions()[i].GetBackwardConversionFactor();
-			kinetics_map_.WriteKineticData(fOutput, i+1, c_bath.GetHandle(), list_of_temperatures, conversion_forward, conversion_backward);
+			kinetics_map_.WriteKineticData(fOutput, i+1, c_bath, list_of_temperatures, conversion_forward, conversion_backward);
 		}
 
 		fOutput.close();
@@ -150,7 +150,7 @@ namespace OpenSMOKE
 			fOutput << std::endl;
 
 			Eigen::MatrixXd fittedKineticParameters;
-			kinetics_map_.FittedReverseKineticConstants(x_bath.GetHandle(), 2, fittedKineticParameters, false);
+			kinetics_map_.FittedReverseKineticConstants(x_bath, 2, fittedKineticParameters, false);
 
 			for (unsigned int k = 1; k <= kinetics_map_.NumberOfReactions(); k++)
 			{
@@ -174,7 +174,7 @@ namespace OpenSMOKE
 			std::cout << "   2 parameters fitting..." << std::endl;
 
 			Eigen::MatrixXd fittedKineticParameters;
-			kinetics_map_.FittedReverseKineticConstants(x_bath.GetHandle(), 2, fittedKineticParameters, true);
+			kinetics_map_.FittedReverseKineticConstants(x_bath, 2, fittedKineticParameters, true);
 
 			std::vector<size_t> indices;
 			{
@@ -216,7 +216,7 @@ namespace OpenSMOKE
 			std::cout << "   3 parameters fitting..." << std::endl;
 
 			Eigen::MatrixXd fittedKineticParameters;
-			kinetics_map_.FittedReverseKineticConstants(x_bath.GetHandle(), 3, fittedKineticParameters, true);
+			kinetics_map_.FittedReverseKineticConstants(x_bath, 3, fittedKineticParameters, true);
 
 			std::vector<size_t> indices;
 			{
