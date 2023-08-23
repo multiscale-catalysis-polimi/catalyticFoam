@@ -29,7 +29,6 @@ EXE_LIBS = \
     $(DVODE_LIBS)     \
     $(LINPACK_LIBS) \
     $(ISAT_LIBS) \
-    -lgfortran \
     $(MKL_LIBS) \
     -lboost_date_time \
     -lboost_filesystem \

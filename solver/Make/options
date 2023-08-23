@@ -27,5 +27,4 @@ EXE_LIBS = \
 	-lfiniteVolume \
 	-lfvOptions \
 	-lmeshTools \
-	-lsampling \
-	-lgfortran
+	-lsampling 
