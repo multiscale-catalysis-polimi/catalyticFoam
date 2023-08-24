@@ -70,46 +70,68 @@ tmp<fv::convectionScheme<scalar> > mvConvection
         if (i != inertIndex)
         {
             volScalarField& Yi = Y[i];
-	    	volScalarField& Dmixi = Dmix[i];
+            volScalarField& Dmixi = Dmix[i];
 
-		// Basic equations
-		fvScalarMatrix YiEqn
-		(
-		     fvm::ddt(rho, Yi)
-		   + mvConvection->fvmDiv(phi, Yi)
-		   - fvm::laplacian(rho*Dmixi, Yi)
-		     ==
-                   - fvm::div(Jc,Yi, "div(Jc,Yi)") + 						
-		     fvOptions(rho, Yi)
-		);
+            // Basic equations
+            #if OFVERSION > 80
+            fvScalarMatrix YiEqn
+            (
+                 fvm::ddt(rho, Yi)
+               + mvConvection->fvmDiv(phi, Yi)
+               - fvm::laplacian(rho*Dmixi, Yi)
+                 ==
+               - fvm::div(Jc,Yi, "div(Jc,Yi)")                        
+               + fvModels.source(rho, Yi)
+            );
+            #else
+            fvScalarMatrix YiEqn
+            (
+                 fvm::ddt(rho, Yi)
+               + mvConvection->fvmDiv(phi, Yi)
+               - fvm::laplacian(rho*Dmixi, Yi)
+                 ==
+               - fvm::div(Jc,Yi, "div(Jc,Yi)")
+               + fvOptions(rho, Yi)
+            );
+            #endif
 
-		// Add Soret effect
-		if (soretEffect == true)
-		{ 
-			if (soretEffectList[i] == true)
-				YiEqn -= fvc::laplacian(rho*Dsoret[indexSoret[i]]/T, T, "laplacian(teta,Yi)");
-		}
+            // Add Soret effect
+            if (soretEffect == true)
+            { 
+                if (soretEffectList[i] == true)
+                    YiEqn -= fvc::laplacian(rho*Dsoret[indexSoret[i]]/T, T, "laplacian(teta,Yi)");
+            }
 
-		// Add thermophoretic effect (TODO)
-		// if (thermophoreticEffect == true)
-		// {
-		//	if (thermophoreticEffectList[i] == true)
-		//		YiEqn -= fvc::laplacian(0.55*mu/T*Yi, T, "laplacian(teta,Yi)");
-		// }
+            // Add thermophoretic effect (TODO)
+            // if (thermophoreticEffect == true)
+            // {
+            //    if (thermophoreticEffectList[i] == true)
+            //        YiEqn -= fvc::laplacian(0.55*mu/T*Yi, T, "laplacian(teta,Yi)");
+            // }
 
-		// Solve
-		YiEqn.relax();
-		fvOptions.constrain(YiEqn);
-		#if OFVERSION > 60
-			YiEqn.solve("Yi");
-		#else
-			YiEqn.solve(mesh.solver("Yi"));
-		#endif
-		fvOptions.correct(Yi);	
-			
-		// Sum of mass fractions
-            	Yi.max(0.0);
-           	Yt += Yi;
+            // Solve
+            YiEqn.relax();
+            #if OFVERSION > 80
+                fvConstraints.constrain(YiEqn);
+            #else
+                fvOptions.constrain(YiEqn);
+            #endif
+                
+            #if OFVERSION > 60
+                YiEqn.solve("Yi");
+            #else
+                YiEqn.solve(mesh.solver("Yi"));
+            #endif
+
+            #if OFVERSION > 80
+                fvConstraints.constrain(Yi);
+            #else
+                fvOptions.correct(Yi);
+            #endif    
+            
+            // Sum of mass fractions
+            Yi.max(0.0);
+            Yt += Yi;
         }
     }
 

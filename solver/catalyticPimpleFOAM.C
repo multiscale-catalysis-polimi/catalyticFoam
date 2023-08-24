@@ -64,7 +64,12 @@
 #include "fvCFD.H"
 #include "multivariateScheme.H"
 #include "pimpleControl.H"
-#include "fvOptions.H"
+#if OFVERSION > 80
+    #include "fvModels.H"
+    #include "fvConstraints.H"
+#else
+    #include "fvOptions.H"
+#endif
 
 // Additional include files
 #include "sparkModel.H"
@@ -94,15 +99,15 @@
 template<typename Solver, typename OdeBatch>
 void SolveOpenSourceSolvers(OdeBatch& ode, const double t0, const double tf, const OpenSMOKE::OpenSMOKEVectorDouble& y0, OpenSMOKE::OpenSMOKEVectorDouble& yf, const OpenSMOKE::ODE_Parameters& parameters)
 {
-	Solver o(ode);
-	o.SetDimensions(y0.Size());
-	o.SetAbsoluteTolerance(parameters.absolute_tolerance());
-	o.SetRelativeTolerance(parameters.relative_tolerance());
-	o.SetAnalyticalJacobian(false);
-	o.SetInitialValues(t0, y0.GetHandle());
-	o.Solve(tf);
-	o.Solution(yf.GetHandle());
-}	
+    Solver o(ode);
+    o.SetDimensions(y0.Size());
+    o.SetAbsoluteTolerance(parameters.absolute_tolerance());
+    o.SetRelativeTolerance(parameters.relative_tolerance());
+    o.SetAnalyticalJacobian(false);
+    o.SetInitialValues(t0, y0.GetHandle());
+    o.Solve(tf);
+    o.Solution(yf.GetHandle());
+}    
 
 */
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -123,7 +128,12 @@ int main(int argc, char *argv[])
     #include "readSolverOptions.H"
     #include "createAdditionalFields.H"
     #include "createCatalyticFields.H"
-    #include "createFvOptions.H"
+    #if OFVERSION < 90
+        #include "createFvOptions.H"
+    #else
+        #include "createFvModels.H"
+        #include "createFvConstraints.H"
+    #endif
     #include "catalystTopology.H"
     #include "memoryAllocation.H"
     #include "properties.H"
@@ -143,7 +153,7 @@ int main(int argc, char *argv[])
     
     while (runTime.run())
     {
-		#include "readTimeControls.H"
+        #include "readTimeControls.H"
         #include "compressibleCourantNo.H"
         #include "setDeltaT.H"
 
@@ -151,31 +161,31 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         if (strangAlgorithm == STRANG_REACTION_TRANSPORT)
-		{
-			#include "Policy_ReactionTransport.H"
-		}
-		else if (strangAlgorithm == STRANG_TRANSPORT_REACTION)
-		{
-			#include "Policy_TransportReaction.H"
-		}
-		else if (strangAlgorithm == STRANG_TRANSPORT_REACTION_MOMENTUM)
-		{
-			#include "Policy_TransportReactionMomentum.H"
-		}
-		else if (strangAlgorithm == STRANG_REACTION_TRANSPORT_REACTION)
-		{
-			#include "Policy_ReactionTransportReaction.H"
-		}
-		else if (strangAlgorithm == STRANG_REACTION_TRANSPORT_HYBRID)
-		{
-			#include "Policy_ReactionTransportHybrid.H"
-		}
-				
-		runTime.write();
+        {
+            #include "Policy_ReactionTransport.H"
+        }
+        else if (strangAlgorithm == STRANG_TRANSPORT_REACTION)
+        {
+            #include "Policy_TransportReaction.H"
+        }
+        else if (strangAlgorithm == STRANG_TRANSPORT_REACTION_MOMENTUM)
+        {
+            #include "Policy_TransportReactionMomentum.H"
+        }
+        else if (strangAlgorithm == STRANG_REACTION_TRANSPORT_REACTION)
+        {
+            #include "Policy_ReactionTransportReaction.H"
+        }
+        else if (strangAlgorithm == STRANG_REACTION_TRANSPORT_HYBRID)
+        {
+            #include "Policy_ReactionTransportHybrid.H"
+        }
+                
+        runTime.write();
 
-        Info	<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-				<< "  ClockTime = " << runTime.elapsedClockTime() << " s"
-				<< nl << endl;
+        Info    << "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+                << "  ClockTime = " << runTime.elapsedClockTime() << " s"
+                << nl << endl;
     }
     
     #include "disclaimer.H"

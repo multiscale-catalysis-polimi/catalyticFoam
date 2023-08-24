@@ -1,0 +1,30 @@
+EXE_INC = \
+	$(OFVERSION) \
+	-w \
+	-std=c++11 \
+	-Iode \
+	-Ipolicies \
+	$(ISAT_SUPPORT) \
+	-I../libraries/odeChemistry/include \
+	-I../libraries/OpenSMOKEpp4catalyticFoam/include \
+	-I../libraries/isat \
+	-Iisat \
+	-I$(BOOST_LIBRARY_PATH)/include \
+	-I$(EIGEN_LIBRARY_PATH) \
+	-I$(RAPIDXML_LIBRARY_PATH) \
+	-I$(LIB_SRC)/finiteVolume/lnInclude \
+	-I$(LIB_SRC)/fvOptions/lnInclude \
+	-I$(LIB_SRC)/meshTools/lnInclude \
+	-I$(LIB_SRC)/finiteVolume/cfdTools \
+	-I$(LIB_SRC)/sampling/lnInclude
+
+EXE_LIBS = \
+        -L$(FOAM_USER_LIBBIN) \
+	-L../libraries/OpenSMOKEpp4catalyticFoam/lib \
+	-L../libraries/odeChemistry/lib \
+	-L$(BOOST_LIBRARY_PATH)/lib \
+	$(CATFOAM_LIBS) \
+	-lfiniteVolume \
+	-lfvOptions \
+	-lmeshTools \
+	-lsampling 

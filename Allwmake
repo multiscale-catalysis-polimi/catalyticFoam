@@ -17,6 +17,12 @@ echo " "
 echo "Compiling catalyticFoam solver"
 cd ../solver
 wclean
+if [ "$OF" == 90 ];
+then
+    cp Make/options.9x Make/options
+else
+    cp Make/options.8x Make/options
+fi
 wmake
 
 cd ../preprocessor-kinetic

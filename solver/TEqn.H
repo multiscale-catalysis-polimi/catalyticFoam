@@ -50,33 +50,55 @@
     if(energyEquation == true)
     {
 
-		massDiffusionInEnergyEquation *= 0.;
-		if (iMassDiffusionInEnergyEquation == true)
-		{
-			for (label i=0; i<Y.size(); i++)
-				massDiffusionInEnergyEquation -= fvc::div(J[i],HSpecies[i], "div(Ji,hsi)") - 
-								 HSpecies[i] * fvc::div(J[i]);
-		}
+        massDiffusionInEnergyEquation *= 0.;
+        if (iMassDiffusionInEnergyEquation == true)
+        {
+            for (label i=0; i<Y.size(); i++)
+                massDiffusionInEnergyEquation -= fvc::div(J[i],HSpecies[i], "div(Ji,hsi)") - HSpecies[i] * fvc::div(J[i]);
+        }
+    
+        #if OFVERSION > 80
+        fvScalarMatrix TEqn
+        (
+            cp*fvm::ddt(rho,T) + 
+            cp*fvm::div(phi, T)
+            ==
+            fvm::laplacian(lambda,T) + 
+            massDiffusionInEnergyEquation +  
+            DpDt +
+            cp*fvModels.source(rho, T)
+        );
+        #else
+        fvScalarMatrix TEqn
+        (
+            cp*fvm::ddt(rho,T) + 
+            cp*fvm::div(phi, T)
+            ==
+            fvm::laplacian(lambda,T) + 
+            massDiffusionInEnergyEquation +  
+            DpDt +
+            cp*fvOptions(rho, T)
+        );
+        #endif
 
-		fvScalarMatrix TEqn
-		(
-		    cp*fvm::ddt(rho,T) + 
-		    cp*fvm::div(phi, T)
-		 ==
-		    fvm::laplacian(lambda,T) + 
-		    massDiffusionInEnergyEquation +  
-		    DpDt +
-		    cp*fvOptions(rho, T)
-		);
+        TEqn.relax();
+        #if OFVERSION > 80
+            fvConstraints.constrain(TEqn);
+        #else
+            fvOptions.constrain(TEqn);
+        #endif
+            
+        #if OFVERSION > 60
+            TEqn.solve("T");
+        #else
+            TEqn.solve(mesh.solver("T"));
+        #endif
 
-		TEqn.relax();
-		fvOptions.constrain(TEqn);
-		#if OFVERSION > 60
-			TEqn.solve("T");
-		#else
-			TEqn.solve(mesh.solver("T"));
-		#endif
-		fvOptions.correct(T);			
+        #if OFVERSION > 80
+            fvConstraints.constrain(T);
+        #else
+            fvOptions.correct(T);
+        #endif             
 
     }
 

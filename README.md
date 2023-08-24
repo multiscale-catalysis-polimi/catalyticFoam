@@ -16,7 +16,7 @@ If you are using ISAT within this software, please cite:
 **catalyticFoam** has been developed in the Multiscale Catalysis Group of the Laboratory of Catalysis and Catalytic Processes of Politecnico di Milano.
 
 ## Information:
-**catalyticFoam** has been developed on top of the OpenFOAM framework and it is currently compatible with OpenFOAM version from 4.x to 8. 
+**catalyticFoam** has been developed on top of the OpenFOAM framework and it is currently compatible with OpenFOAM version from 4.x to 9. 
 **catalyticFoam** is not part of the official OpenFOAM release nor endorsed by The OpenFOAM Foundation.
 
 ## Compulsory libraries:
@@ -29,7 +29,7 @@ If you are using ISAT within this software, please cite:
 Instructions:
 1. Open a terminal and move to the desidered position of the catalyticFoam folder
 2. Type: `git clone https://github.com/multiscale-catalysis-polimi/catalyticFoam.git`
-3. Open the `mybashrc`, choose the version of OpenFOAM you are using (4.x = 40, 5.x = 50, 6.x = 60, 7.x = 70, 8.x = 80) and adjust the paths to the compulsory external libraries
+3. Open the `mybashrc`and adjust the paths to the compulsory external libraries
 4. Type: `source mybashrc`
 5. Type: `./Allwmake`
 
@@ -38,7 +38,7 @@ Instructions:
 2. Install OpenFOAM on WSL following the instructions available [here](https://openfoam.org/download/)
 3. Open a terminal and move to the desidered position of the catalyticFoam folder
 4. Type: `git clone https://github.com/multiscale-catalysis-polimi/catalyticFoam.git`
-5. Open the `mybashrc`, choose the version of OpenFOAM you are using (4.x = 40, 5.x = 50, 6.x = 60, 7.x = 70, 8.x = 80) and adjust the paths to the compulsory external libraries
+5. Open the `mybashrc` and adjust the paths to the compulsory external libraries
 6. Type: `source mybashrc`
 7. Type: `./Allwmake`
 

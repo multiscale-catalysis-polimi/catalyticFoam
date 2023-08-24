@@ -47,42 +47,49 @@
 \*-----------------------------------------------------------------------*/
 
 {
-	#include "properties.H"
-	#include "updateGradients.H"
+    #include "properties.H"
+    #include "updateGradients.H"
 
-	// Chemical step (1st)
-	{
-		double t0 = runTime.value() - runTime.deltaT().value();
-		double tf = runTime.value() - runTime.deltaT().value()/2.;
-		#include "chemistry.H"
-	}
+    // Chemical step (1st)
+    {
+        double t0 = runTime.value() - runTime.deltaT().value();
+        double tf = runTime.value() - runTime.deltaT().value()/2.;
+        #include "chemistry.H"
+    }
 
-	#include "rhoEqn.H"
+    #include "rhoEqn.H"
 
-	while (pimple.loop())
-	{
-		#include "UEqn.H"
-		#include "YEqn.H"
-		#include "TEqn.H"
+    while (pimple.loop())
+    {
+        #include "UEqn.H"
+        #include "YEqn.H"
+        #include "TEqn.H"
 
-		// Chemical step (2nd)
-		{
-			double t0 = runTime.value() - runTime.deltaT().value()/2.;
-			double tf = runTime.value();
-			#include "chemistry.H"
-		}
+        // Chemical step (2nd)
+        {
+            double t0 = runTime.value() - runTime.deltaT().value()/2.;
+            double tf = runTime.value();
+            #include "chemistry.H"
+        }
 
-		// --- Pressure corrector loop
-		while (pimple.correct())
-		{
-			if (pimple.consistent())
-                {
-                    #include "pcEqn.H"
-                }
-                else
-                {
-                    #include "pEqn.H"
-                }
-		}
-	}
+        // --- Pressure corrector loop
+        #if OFVERSION > 80
+        while (pimple.correct())
+        {
+            #include "pEqn_9x.H"
+        }
+        #else
+        while (pimple.correct())
+        {
+            if (pimple.consistent())
+            {
+                #include "pcEqn.H"
+            }
+            else
+            {
+                #include "pEqn.H"
+            }
+        }
+        #endif
+    }
 }

@@ -47,6 +47,18 @@
 \*-----------------------------------------------------------------------*/
 
 
+    #if OFVERSION > 80
+    tmp<fvVectorMatrix> tUEqn
+    (
+        fvm::ddt(rho, U)
+      + fvm::div(phi, U)
+      - fvm::laplacian(mu, U)
+      - fvc::div(mu*dev2(fvc::grad(U)().T()))
+         ==
+        rho*g
+        + fvModels.source(rho, U)
+    );
+    #else
     tmp<fvVectorMatrix> tUEqn
     (
         fvm::ddt(rho, U)
@@ -57,18 +69,27 @@
         rho*g
       + fvOptions(rho, U)
     );
+    #endif
 
-	fvVectorMatrix& UEqn = tUEqn.ref();
-	
+    fvVectorMatrix& UEqn = tUEqn.ref();
+    
     UEqn.relax();
 
-    fvOptions.constrain(UEqn);
+    #if OFVERSION > 80
+        fvConstraints.constrain(UEqn);
+    #else
+        fvOptions.constrain(UEqn);
+    #endif
 
     if (pimple.momentumPredictor())
     {
         solve(UEqn == -fvc::grad(p));
 
-        fvOptions.correct(U);
+        #if OFVERSION > 80
+            fvConstraints.constrain(U);
+        #else
+            fvOptions.correct(U);
+        #endif
     }
 
      Info << " Umin: " << min(U).value() << " Umax: " << max(U).value() << endl;
