@@ -1,4 +1,5 @@
 EXE_INC = \
+    $(OFVERSION) \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/triSurface/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude

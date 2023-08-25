@@ -74,7 +74,7 @@ catalyticWallFvPatchScalarField
     fixedGradientFvPatchScalarField(ptf, p, iF, mapper)
 {}
 
-
+#if OFVERSION < 90
 catalyticWallFvPatchScalarField::
 catalyticWallFvPatchScalarField
 (
@@ -83,7 +83,7 @@ catalyticWallFvPatchScalarField
 :
     fixedGradientFvPatchScalarField(ptf)
 {}
-
+#endif
 
 catalyticWallFvPatchScalarField::
 catalyticWallFvPatchScalarField

@@ -25,6 +25,7 @@ EXE_LIBS = \
 	-L$(BOOST_LIBRARY_PATH)/lib \
 	$(CATFOAM_LIBS) \
 	-lfiniteVolume \
-	-lfvOptions \
+	-lfvModels \
+        -lfvConstraints \
 	-lmeshTools \
 	-lsampling 
