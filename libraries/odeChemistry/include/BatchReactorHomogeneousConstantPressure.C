@@ -18,7 +18,7 @@
 |                                                                         |
 |   This file is part of catalyticFOAM framework.                         |
 |                                                                         |
-|	License                                                           |
+|   License                                                               |
 |                                                                         |
 |   Copyright(C) 2014-2011, A.Cuoci, M.Maestri,                           |
 |                2014-2013, S.Rebughini                                   |
@@ -44,80 +44,81 @@
 
 #include "BatchReactorHomogeneousConstantPressure.H"
 
-BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure(	OpenSMOKE::ThermodynamicsMap_CHEMKIN& thermodynamicsMap, 
-								OpenSMOKE::KineticsMap_CHEMKIN& kineticsMap):
-	thermodynamicsMap_(thermodynamicsMap), 
-	kineticsMap_(kineticsMap)
-	{
-		NC_ = thermodynamicsMap_.NumberOfSpecies();
-		NE_ = NC_+1;
-		
-		ChangeDimensions(NC_, &omega_, true);
-		ChangeDimensions(NC_, &x_, true);
-		ChangeDimensions(NC_, &c_, true);
-		ChangeDimensions(NC_, &R_, true);
-		
-		checkMassFractions_ = false;
-		energyEquation_ = true;
-	}
+BatchReactorHomogeneousConstantPressure::BatchReactorHomogeneousConstantPressure(    OpenSMOKE::ThermodynamicsMap_CHEMKIN& thermodynamicsMap, 
+                                OpenSMOKE::KineticsMap_CHEMKIN& kineticsMap):
+    thermodynamicsMap_(thermodynamicsMap), 
+    kineticsMap_(kineticsMap)
+    {
+        NC_ = thermodynamicsMap_.NumberOfSpecies();
+        NE_ = NC_+1;
+        
+        ChangeDimensions(NC_, &omega_, true);
+        ChangeDimensions(NC_, &x_, true);
+        ChangeDimensions(NC_, &c_, true);
+        ChangeDimensions(NC_, &R_, true);
+        
+        checkMassFractions_ = false;
+        energyEquation_ = true;
+    }
 
 void BatchReactorHomogeneousConstantPressure::SetReactor( const double P0 )
 {
-	P0_    = P0;
+    P0_    = P0;
 }
 
 int BatchReactorHomogeneousConstantPressure::Equations(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y, OpenSMOKE::OpenSMOKEVectorDouble& dy)
 {
-	// Recover mass fractions
-	if (checkMassFractions_ == true)
-	{	for(unsigned int i=1;i<=NC_;++i)
-			omega_[i] = std::max(y[i], 0.);
-	}
-	else
-	{
-		for(unsigned int i=1;i<=NC_;++i)
-			omega_[i] = y[i];
-	}
+    // Recover mass fractions
+    if (checkMassFractions_ == true)
+    {    for(unsigned int i=1;i<=NC_;++i)
+            omega_[i] = std::max(y[i], 0.);
+    }
+    else
+    {
+        for(unsigned int i=1;i<=NC_;++i)
+            omega_[i] = y[i];
+    }
 
-	// Recover temperature
-	T_ = y[NC_+1];
+    // Recover temperature
+    T_ = y[NC_+1];
 
-	// Calculates the pressure and the concentrations of species
-	thermodynamicsMap_.MoleFractions_From_MassFractions(x_, MW_, omega_);
-	cTot_ = P0_/PhysicalConstants::R_J_kmol/T_;
+    // Calculates the pressure and the concentrations of species
+    thermodynamicsMap_.MoleFractions_From_MassFractions(x_, MW_, omega_);
+    cTot_ = P0_/PhysicalConstants::R_J_kmol/T_;
     rho_ = cTot_*MW_;
-	Product(cTot_, x_, &c_);
+    Product(cTot_, x_, &c_);
 
-	// Calculates thermodynamic properties
-	thermodynamicsMap_.SetTemperature(T_);
-	thermodynamicsMap_.SetPressure(P0_);
-	
-	// Calculates kinetics
-	kineticsMap_.SetTemperature(T_);
-	kineticsMap_.SetPressure(P0_);
-	kineticsMap_.KineticConstants();
-	kineticsMap_.ReactionRates(c_);
-	kineticsMap_.FormationRates(&R_);
-	
+    // Calculates thermodynamic properties
+    thermodynamicsMap_.SetTemperature(T_);
+    thermodynamicsMap_.SetPressure(P0_);
+    
+    // Calculates kinetics
+    kineticsMap_.SetTemperature(T_);
+    kineticsMap_.SetPressure(P0_);
+    kineticsMap_.KineticConstants();
+    kineticsMap_.ReactionRates(c_);
+    kineticsMap_.FormationRates(&R_);
+    
 
-	// Species equations
-	for (unsigned int i=1;i<=NC_;++i)	
-		dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho_;
-		
-	// Energy equation
-   	dy[NC_+1] = 0.;     
-    	if (energyEquation_ == true)
-   	{
-		double CpMixMolar; 
-		thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
-		CpMixMass_ = CpMixMolar / MW_;
-		const double QR_ = kineticsMap_.HeatRelease(R_);
-		dy[NC_+1]  = QR_ / (rho_*CpMixMass_);
-	}
+    // Species equations
+    for (unsigned int i=1;i<=NC_;++i)    
+        dy[i] = thermodynamicsMap_.MW()[i]*R_[i]/rho_;
+        
+    // Energy equation
+       dy[NC_+1] = 0.;     
+        if (energyEquation_ == true)
+       {
+        double CpMixMolar; 
+        thermodynamicsMap_.cpMolar_Mixture_From_MoleFractions(CpMixMolar,x_);
+        CpMixMass_ = CpMixMolar / MW_;
+        const double QR_ = kineticsMap_.HeatRelease(R_);
+        dy[NC_+1]  = QR_ / (rho_*CpMixMass_);
+    }
 
-	return 0;
+    return 0;
 }
 
 int BatchReactorHomogeneousConstantPressure::Print(const double t, const OpenSMOKE::OpenSMOKEVectorDouble& y)
 {
+    return 0;
 }
