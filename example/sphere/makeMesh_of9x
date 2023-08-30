@@ -1,0 +1,4 @@
+blockMesh
+surfaceFeatureExtract
+snappyHexMesh -overwrite
+transformPoints "scale=(1e-3 1e-3 1e-3)"
