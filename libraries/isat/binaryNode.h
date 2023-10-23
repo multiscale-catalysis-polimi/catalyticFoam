@@ -139,5 +139,6 @@ class binaryNode {
         void calc(chemComp *left, chemComp *right, VectorXd &v, double &a);
 };
 
+#include "binaryNode.C"
 
 #endif

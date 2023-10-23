@@ -1,7 +1,7 @@
 #Compulsory path
-export EIGEN_LIBRARY_PATH=/software/energia2/libraries/eigen/eigen-3.4.0/
-export BOOST_LIBRARY_PATH=/software/energia2/libraries/boost/boost-1.78.0-gcc-12.1.0/
-export RAPIDXML_LIBRARY_PATH=/software/energia2/libraries/rapidxml/rapidxml-1.13/
+export EIGEN_LIBRARY_PATH=$HOME/NumericalLibraries/Eigen/Eigen-3.3.5
+export BOOST_LIBRARY_PATH=$HOME/NumericalLibraries/Boost/boost_1_68_0/build
+export RAPIDXML_LIBRARY_PATH=$HOME/NumericalLibraries/RapidXML/rapidxml-1.13 
 
 #Options: ISAT support
 export ISAT_SUPPORT='-DOPENSMOKE_USE_ISAT=1'
@@ -11,9 +11,4 @@ export OF="${WM_PROJECT_VERSION%%.*}0"
 export OFVERSION="-DOFVERSION=$OF"
 
 #Static linking of libraries
-export CATFOAM_LIBS='-lISAT -Wl,--start-group -Wl,-Bstatic -lOdeChemistry -lOpenSMOKEppDictionaries -lOpenSMOKEppMaps -lOpenSMOKEppKernel -lOpenSMOKEppMath -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'
-
-export OPENSMOKE_LIBS='-Wl,--start-group -Wl,-Bstatic -lOpenSMOKEppDictionaries -lOpenSMOKEppMaps -lOpenSMOKEppKernel -lOpenSMOKEppMath -Wl,--end-group -Wl,-Bdynamic'
-export BOOST_LIBS='-Wl,--start-group -Wl,-Bstatic -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'
-export ODECHEMISTRY_LIBS='-Wl,--start-group -Wl,-Bstatic -lOdeChemistry -Wl,--end-group -Wl,-Bdynamic'
-export ISAT_LIBS='-lISAT'
+export CATFOAM_LIBS='-Wl,--start-group -Wl,-Bstatic -lboost_program_options -lboost_system -lboost_filesystem -lboost_regex -lboost_date_time -Wl,--end-group -Wl,-Bdynamic'

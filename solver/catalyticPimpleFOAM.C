@@ -57,8 +57,8 @@
 #include "catalyticReactorClass.H"
 
 // ODE solvers
-#include "math/multivalue-ode-solvers/MultiValueSolver"
-#include "ode/parameters/ODE_Parameters.h"
+#include "math/native-ode-solvers/MultiValueSolver"
+#include "math/external-ode-solvers/ODE_Parameters.h"
 
 // OpenFOAM
 #include "fvCFD.H"

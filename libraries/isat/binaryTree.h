@@ -164,5 +164,7 @@ class binaryTree {
             
 };
 
+#include "binaryTree.C"
+
 #endif    /* BINARYTREE_H */
 

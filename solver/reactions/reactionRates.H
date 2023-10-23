@@ -52,9 +52,10 @@ namespace OpenSMOKE
     {
         public:
 
-        KineticsMap_Surface_CHEMKIN_Lumped(ThermodynamicsMap_Surface_CHEMKIN& thermo, rapidxml::xml_document<>& doc)
-        : KineticsMap_Surface_CHEMKIN(thermo, doc)
+        KineticsMap_Surface_CHEMKIN_Lumped(ThermodynamicsMap_Surface_CHEMKIN& thermo, boost::property_tree::ptree& ptree)
+        : KineticsMap_Surface_CHEMKIN(thermo, ptree)
         {
+		
         }
 
 
@@ -62,8 +63,8 @@ namespace OpenSMOKE
                                               const OpenSMOKEVectorDouble& z, 
                                               const OpenSMOKEVectorDouble& a, 
                                               const OpenSMOKEVectorDouble& gamma)
-        {
-
+        {	
+		
         }
 
         private:

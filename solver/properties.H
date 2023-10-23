@@ -78,36 +78,33 @@
 			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				massFractions[i+1] = Y[i].ref()[celli];
 				
-			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,MWmixCells[celli],massFractions);
+			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions.GetHandle(),MWmixCells[celli],massFractions.GetHandle());
 
 			cTotCells[celli] = pCells[celli]/PhysicalConstants::R_J_kmol/TCells[celli];
 			psiCells[celli]  = cTotCells[celli]*MWmixCells[celli]/pCells[celli];
-			thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(hCells[celli], moleFractions);		// [J/kmol]
+			hCells[celli] = thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(moleFractions.GetHandle());		// [J/kmol]
 			hCells[celli] /= MWmixCells[celli];															// [J/kg]
 			
-			//if (viscositySpecies == true)
-			{
-				transportMapXML->DynamicViscosity(muCells[celli],moleFractions);
-			}
+			muCells[celli] = transportMapXML->DynamicViscosity(moleFractions.GetHandle());
 
             if (energyEquation == true || diffusivityModel == DIFFUSIVITY_MODEL_LEWIS_NUMBERS)
             {
-				transportMapXML->ThermalConductivity(lambdaCells[celli],moleFractions);
+				lambdaCells[celli] = transportMapXML->ThermalConductivity(moleFractions.GetHandle());
                 
-                		thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(cpCells[celli], moleFractions);			//[J/Kmol/K]
+                		cpCells[celli] = thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(moleFractions.GetHandle());			//[J/Kmol/K]
 				cpCells[celli] = cpCells[celli]/MWmixCells[celli];
 			
 				if (iMassDiffusionInEnergyEquation == true)
 				{
-					thermodynamicsMapXML->hMolar_Species(HVector);
+					thermodynamicsMapXML->hMolar_Species(HVector.GetHandle());
 					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-						HSpecies[i].ref()[celli] = HVector[i+1] / thermodynamicsMapXML->MW()[i+1];
+						HSpecies[i].ref()[celli] = HVector[i+1] / thermodynamicsMapXML->MW(i);
 				}
 			}
 			
 			if (diffusivityModel == DIFFUSIVITY_MODEL_MULTICOMPONENT)
 			{
-				transportMapXML->MassDiffusionCoefficients(Dmixvector, moleFractions);
+				transportMapXML->MassDiffusionCoefficients(Dmixvector.GetHandle(), moleFractions.GetHandle());
 				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					Dmix[i].ref()[celli] = Dmixvector[i+1];
 			}
@@ -121,11 +118,11 @@
 			// Thermal diffusion coefficients [-]
 			if (soretEffect == true)
 			{
-				transportMapXML->ThermalDiffusionRatios(tetamixvector, moleFractions);		
+				transportMapXML->ThermalDiffusionRatios(tetamixvector.GetHandle(), moleFractions.GetHandle());		
 				for(int i=0;i<transportMapXML->iThermalDiffusionRatios().size();i++)
 				{
 					unsigned int index = transportMapXML->iThermalDiffusionRatios()[i];
-					Dsoret[i].ref()[celli] =Dmix[index-1].ref()[celli]*tetamixvector[index]*thermodynamicsMapXML->MW()[index]/MWmixCells[celli];
+					Dsoret[i].ref()[celli] =Dmix[index-1].ref()[celli]*tetamixvector[index]*thermodynamicsMapXML->MW(index-1)/MWmixCells[celli];
 				} 
 			}
 		}
@@ -156,38 +153,34 @@
 			for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 				massFractions[i+1] = Y[i].boundaryFieldRef()[patchi][facei];
 
-			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions,pMWmix[facei],massFractions);
+			thermodynamicsMapXML->MoleFractions_From_MassFractions(moleFractions.GetHandle(),pMWmix[facei],massFractions.GetHandle());
 
 
 			pcTot[facei] = pp[facei]/(PhysicalConstants::R_J_kmol*pT[facei]);
 			ppsi[facei]  = pcTot[facei]*pMWmix[facei]/pp[facei];
-			thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(ph[facei], moleFractions);		// [J/kmol]
+			ph[facei] = thermodynamicsMapXML->hMolar_Mixture_From_MoleFractions(moleFractions.GetHandle());		// [J/kmol]
 			ph[facei] /= pMWmix[facei];																// [J/kg]
 			
-
-			//if (viscositySpecies == true)
-			{
-				transportMapXML->DynamicViscosity(pmu[facei],moleFractions);
-			}
+			pmu[facei] = transportMapXML->DynamicViscosity(moleFractions.GetHandle());
 
             if (energyEquation == true || diffusivityModel == DIFFUSIVITY_MODEL_LEWIS_NUMBERS)
             {
-				transportMapXML->ThermalConductivity(plambda[facei],moleFractions);
+				plambda[facei] = transportMapXML->ThermalConductivity(moleFractions.GetHandle());
 				
-				thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(pcp[facei], moleFractions);			//[J/Kmol/K]
+				pcp[facei] = thermodynamicsMapXML->cpMolar_Mixture_From_MoleFractions(moleFractions.GetHandle());			//[J/Kmol/K]
 				pcp[facei] = pcp[facei]/pMWmix[facei];
 			
 				if (iMassDiffusionInEnergyEquation == true)
 				{
-					thermodynamicsMapXML->hMolar_Species(HVector);
+					thermodynamicsMapXML->hMolar_Species(HVector.GetHandle());
 					for(unsigned int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
-						HSpecies[i].boundaryFieldRef()[patchi][facei] = HVector[i+1] / thermodynamicsMapXML->MW()[i+1];
+						HSpecies[i].boundaryFieldRef()[patchi][facei] = HVector[i+1] / thermodynamicsMapXML->MW(i);
 				}
 			}
 			
 			if (diffusivityModel == DIFFUSIVITY_MODEL_MULTICOMPONENT)
 			{
-				transportMapXML->MassDiffusionCoefficients(Dmixvector,moleFractions);
+				transportMapXML->MassDiffusionCoefficients(Dmixvector.GetHandle(),moleFractions.GetHandle());
 				for(int i=0;i<thermodynamicsMapXML->NumberOfSpecies();i++)
 					Dmix[i].boundaryFieldRef()[patchi][facei] = Dmixvector[i+1];
 			}
@@ -201,11 +194,11 @@
 			// Thermal diffusion coefficients [-]
 			if (soretEffect == true)
 			{
-				transportMapXML->ThermalDiffusionRatios(tetamixvector, moleFractions);
+				transportMapXML->ThermalDiffusionRatios(tetamixvector.GetHandle(), moleFractions.GetHandle());
 				for(int i=0;i<transportMapXML->iThermalDiffusionRatios().size();i++)
 				{
 					unsigned int index = transportMapXML->iThermalDiffusionRatios()[i];
-					Dsoret[i].boundaryFieldRef()[patchi][facei] = Dmix[index-1].boundaryFieldRef()[patchi][facei]*tetamixvector[index]*thermodynamicsMapXML->MW()[index]/pMWmix[facei];
+					Dsoret[i].boundaryFieldRef()[patchi][facei] = Dmix[index-1].boundaryFieldRef()[patchi][facei]*tetamixvector[index]*thermodynamicsMapXML->MW(index-1)/pMWmix[facei];
 				}
 			}		
 
@@ -214,7 +207,7 @@
                 if (patchi == indexCatalyst[i])
                 {
                     for(label i=0; i<Ygrad.size(); i++)
-						Ygrad[i].boundaryFieldRef()[patchi][facei] *= thermodynamicsMapXML->MW()[i+1]*AlfaCatalyst/Dmix[i].boundaryFieldRef()[patchi][facei]/(pp[facei]*ppsi[facei]); 
+						Ygrad[i].boundaryFieldRef()[patchi][facei] *= thermodynamicsMapXML->MW(i)*AlfaCatalyst/Dmix[i].boundaryFieldRef()[patchi][facei]/(pp[facei]*ppsi[facei]); 
 			
                     if(energyEquation == true)
                     {

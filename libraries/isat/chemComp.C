@@ -59,7 +59,7 @@ chemComp::chemComp(const unsigned int index, const VectorXd &phi, const VectorXd
     nUsed_ = 0;
     
     // set creation time
-    lastTimeUse_ = double(clock())/CLOCKS_PER_SEC;
+    lastTimeUse_ = double(std::clock())/CLOCKS_PER_SEC;
   
     // creation of the matrix scale factor
     B_ = scaleFactor.asDiagonal();

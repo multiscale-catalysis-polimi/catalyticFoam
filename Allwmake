@@ -6,16 +6,11 @@ echo "Compiling catalyticWall boundary condition"
 cd boundary/catalyticWall
 wclean
 wmake
-
-echo " "
-echo "Compiling catalyticFoam libraries"
-cd ../../libraries
-./Allwclean
-./Allwmake
+cd ../..
 
 echo " "
 echo "Compiling catalyticFoam solver"
-cd ../solver
+cd solver
 wclean
 if [ "$OF" == 90 ];
 then

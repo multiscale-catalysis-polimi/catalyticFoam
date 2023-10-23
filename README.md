@@ -3,25 +3,31 @@ catalyticFoam
 CFD solver for heterogeneous reacting flows with detailed kinetic mechanisms
 
 If you are using this software, please cite:
-> Maestri, M. and Cuoci, A. (2013) Coupling CFD with detailed microkinetic modeling
-> in heterogeneous catalysis. Chemical Engineering Science. Volume 96. Pages 106-117.
-> doi.org/10.1016/j.ces.2013.03.048.
+> Maestri, M. and Cuoci, A. (2013) Coupling CFD with detailed microkinetic modeling in heterogeneous catalysis. Chemical Engineering Science. Volume 96. Pages 106-117.
+doi.org/10.1016/j.ces.2013.03.048.
+
+> Micale, D., Ferroni, C., Uglietti, R., Bracconi, M., Maestri, m. (2022) Computational Fluid Dynamics of Reacting Flows at Surfaces: Methodologies and Applications. Chemie Ingenieur Technik. Volume 94. Issue 5. Pages 634-651. doi.org/10.1002/cite.202100196.
                                                                       
 If you are using ISAT within this software, please cite:
-> Bracconi, M., Maestri, M. and Cuoci, A. (2017) In situ adaptive tabulation for the CFD simulation of
-> heterogeneous reactors based on operator-splitting algorithm.AIChE J., Volume 63. Pages 95–104.
-> doi:10.1002/aic.15441 
+> Bracconi, M., Maestri, M. and Cuoci, A. (2017) In situ adaptive tabulation for the CFD simulation of heterogeneous reactors based on operator-splitting algorithm.AIChE J., Volume 63. Pages 95–104. doi:10.1002/aic.15441. 
 
 ## Authors:
 **catalyticFoam** has been developed in the Multiscale Catalysis Group of the Laboratory of Catalysis and Catalytic Processes of Politecnico di Milano.
+
+Main developers:
+- Mauro Bracconi (Politecnico di Milano)
+- Alberto Cuoci (Politecnico di Milano)
+- Matteo Maestri (Politecnico di Milano)
 
 ## Information:
 **catalyticFoam** has been developed on top of the OpenFOAM framework and it is currently compatible with OpenFOAM version from 4.x to 9. 
 **catalyticFoam** is not part of the official OpenFOAM release nor endorsed by The OpenFOAM Foundation.
 
+### Update - October 23, 2023
+**Important Notice**: A major update of the catalyticFoam solver and related tools has been released. Kinetic schemes preprocessed with the previous versions must be reprocessed as explained [Preprocessing of a kinetic scheme](#preprocessing-of-a-kinetic-scheme) section.
+
 ## Compulsory libraries:
 - [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) 
-- [RapidXML](http://rapidxml.sourceforge.net/)
 - [Boost C++](http://www.boost.org/)
 - [OpenSMOKE++][1] (provided with the current version of catalyticFoam)
 

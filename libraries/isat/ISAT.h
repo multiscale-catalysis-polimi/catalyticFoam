@@ -521,5 +521,7 @@ private:
     
 };
 
+#include "ISAT.C"
+
 #endif    /* ISAT_H */
 

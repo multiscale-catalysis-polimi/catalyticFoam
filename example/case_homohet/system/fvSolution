@@ -1,0 +1,94 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    "(rho|rhoFinal)"
+    {
+        solver              PCG;
+        preconditioner      DIC;
+        tolerance           1e-6;
+        relTol              0;
+    };
+
+    p
+    {
+        solver              	GAMG;
+        tolerance           	1e-6;
+        relTol              	0.1;
+        smoother            	GaussSeidel;
+        cacheAgglomeration  	true;
+        nCellsInCoarsestLevel   10;
+        agglomerator    	faceAreaPair;
+        mergeLevels     	1;
+    };
+
+    pFinal
+    {
+        $p;
+        tolerance           1e-6;
+        relTol              0;
+    };
+
+    U
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-07;
+        relTol          0.;
+	nSweeps         1;
+    }
+
+    UFinal
+    {
+        $U;
+        relTol          0;
+    }
+
+    T
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-07;
+        relTol          1e-07;
+    }
+
+    Yi
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-09;
+        relTol          1e-07;
+    }
+
+    YiFinal
+    {
+        $Yi;
+        relTol          0;
+    }
+
+    TFinal
+    {
+        $T;
+        relTol          0;
+    }
+
+}
+
+PIMPLE
+{
+    momentumPredictor        yes;
+    nOuterCorrectors         1;
+    nCorrectors              2;
+    nNonOrthogonalCorrectors 0;
+}
+
+// ************************************************************************* //

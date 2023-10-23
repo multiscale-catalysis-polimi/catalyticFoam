@@ -236,5 +236,6 @@ class chemComp {
 
 };
 
+#include "chemComp.C"
 
 #endif

@@ -1,6 +1,6 @@
 EXE_INC = \
     -w -fpermissive \
-    -I../libraries/OpenSMOKEpp4catalyticFoam/include  \
+    -I../libraries/openSMOKEpp4catalyticFoam/source  \
     -I$(BOOST_LIBRARY_PATH)/include \
     -I$(EIGEN_LIBRARY_PATH) \
     -I$(RAPIDXML_LIBRARY_PATH) \
@@ -12,6 +12,4 @@ EXE_INC = \
 
 EXE_LIBS = \
     -L$(BOOST_LIBRARY_PATH)/lib \
-    -L../libraries/OpenSMOKEpp4catalyticFoam/lib \
-    $(OPENSMOKE_LIBS) \
-    $(BOOST_LIBS)
+    $(CATFOAM_LIBS)

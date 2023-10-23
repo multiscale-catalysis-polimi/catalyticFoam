@@ -106,7 +106,7 @@ ISAT::ISAT(VectorXd scaleFactor, double epsTol, unsigned int nCol)
     toRemove_.clear();
     
     // memorize start time
-    timeStart_ = double(clock())/CLOCKS_PER_SEC;
+    timeStart_ = double(std::clock())/CLOCKS_PER_SEC;
     // inizialize time counter
     tStartOp_ = 0.;
     tEndOp_ = 0.;
@@ -135,13 +135,13 @@ ISAT::ISAT(VectorXd scaleFactor, double epsTol, unsigned int nCol)
 bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 {
     // BinaryTree Search
-    tStartOp_ = double(clock())/CLOCKS_PER_SEC;
+    tStartOp_ = double(std::clock())/CLOCKS_PER_SEC;
 
     chemistryTree_->searchTreeLeaf(phiQ, chemistryTree_->getRoot(), closest);
 
     if(!closest) 
     { 
-        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
         cpuRet_ += tEndOp_-tStartOp_;
         return false; 
     }
@@ -155,12 +155,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
             // retrieve leaf -> add to MRU list
             nBTS_++;
             phi0->nUsedPP();
-            phi0->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+            phi0->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
             
             addToMRU(phi0);
             addToMFU(phi0);
 
-            tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+            tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
             cpuRet_ += tEndOp_-tStartOp_;
             return true;
         }
@@ -192,12 +192,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 						nBTSR_++;
 						closest = testLeaf;
 						testLeaf->nUsedPP();
-            					testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+            					testLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
 						addToMRU(testLeaf);
             					addToMFU(testLeaf);
 
-						tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+						tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
             					cpuRet_ += tEndOp_-tStartOp_;
 					
 						foundLeaf = true;
@@ -213,12 +213,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 
                                                 nBTSR_++;
                                                 testLeaf->nUsedPP();
-                                                testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+                                                testLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
                                                 addToMRU(testLeaf);
                                                 addToMFU(testLeaf);
 
-                                                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                                                tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                                                 cpuRet_ += tEndOp_-tStartOp_;
 
                                                 foundLeaf = true;
@@ -237,12 +237,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 
                                                 nBTSR_++;
                                                 testLeaf->nUsedPP();
-                                                testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+                                                testLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
                                                 addToMRU(testLeaf);
                                                 addToMFU(testLeaf);
 
-                                                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                                                tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                                                 cpuRet_ += tEndOp_-tStartOp_;
 
                                                 foundLeaf = true;
@@ -258,12 +258,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 
 							//nBTSR_++;
 							testLeaf->nUsedPP();
-							testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+							testLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
 							addToMRU(testLeaf);
 							addToMFU(testLeaf);
 
-							tEndOp_=double(clock())/CLOCKS_PER_SEC;
+							tEndOp_=double(std::clock())/CLOCKS_PER_SEC;
 							cpuRet_+=tEndOp_-tStartOp_;
 
 							foundLeaf = true;
@@ -280,12 +280,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 
                                                 nBTSR_++;
                                                 testLeaf->nUsedPP();
-                                                testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+                                                testLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
                                                 addToMRU(testLeaf);
                                                 addToMFU(testLeaf);
 
-                                                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                                                tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                                                 cpuRet_ += tEndOp_-tStartOp_;
 
                                                 foundLeaf = true;
@@ -301,12 +301,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 
 							nBTSR_++;
 							testLeaf->nUsedPP();
-							testLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+							testLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
 							addToMRU(testLeaf);
 							addToMFU(testLeaf);
 
-							tEndOp_=double(clock())/CLOCKS_PER_SEC;
+							tEndOp_=double(std::clock())/CLOCKS_PER_SEC;
 							cpuRet_+=tEndOp_-tStartOp_;
 
 							foundLeaf=true;
@@ -341,14 +341,14 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
                     { // if the leaf cover the query return
                         closest = (*iter);
                         (*iter)->nUsedPP();
-                        (*iter)->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+                        (*iter)->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
                         
                         // add to MRU and MFU
                         addToMFU((*iter));
                         addToMRU((*iter));
                         nMRU_++;
                         
-                        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                         cpuRet_ += tEndOp_-tStartOp_;
                         tempMFU.clear();
                         return true;   
@@ -374,14 +374,14 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
                     
                     closest = (*iter);
                     (*iter)->nUsedPP();
-                    (*iter)->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+                    (*iter)->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
                     
                     // add to MRU and MFU
                     addToMFU((*iter));
                     addToMRU((*iter));
                     nMFU_++;
                     
-                    tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                    tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                     cpuRet_ += tEndOp_-tStartOp_;
                     tempMFU.clear();
                     return true;   
@@ -424,12 +424,12 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
 			nCL_++;
 
 			minLeaf->nUsedPP();
-			minLeaf->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+			minLeaf->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
 
 			addToMRU(minLeaf);
 			addToMFU(minLeaf);
 
-			tEndOp_=double(clock())/CLOCKS_PER_SEC;
+			tEndOp_=double(std::clock())/CLOCKS_PER_SEC;
 			cpuRet_+=tEndOp_-tStartOp_;
 
 			return true;
@@ -446,24 +446,24 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
                 {
                     nFailBTinEOA_++;
                     phi0->nUsedPP();
-                    phi0->setLastTimeUse(double(clock())/CLOCKS_PER_SEC);
+                    phi0->setLastTimeUse(double(std::clock())/CLOCKS_PER_SEC);
                     
                     // add to MRU and MFU
                     addToMRU(phi0);
                     addToMFU(phi0);
 
-                    tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                    tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                     cpuRet_ += tEndOp_-tStartOp_;
                     return true;
                 }
                 phi0 = chemistryTree_->treeNextLeaf(phi0);               
             }
             // if Brute Force failed doesn't exist any leaf so return false
-            tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+            tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
             cpuRet_ += tEndOp_-tStartOp_;
             return false;
         } 
-        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
         cpuRet_ += tEndOp_-tStartOp_;
         return false;
     }
@@ -484,7 +484,7 @@ bool ISAT::retrieve(const VectorXd &phiQ, chemComp *&closest)
  */
 bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, chemComp *&phi0) {
 
-    tStartOp_ = double(clock())/CLOCKS_PER_SEC;
+    tStartOp_ = double(std::clock())/CLOCKS_PER_SEC;
     
     unsigned int checkSize = chemistryTree_->getSize(); // tree size before add operation
       
@@ -601,10 +601,10 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
                     chemistryTree_->searchTreeLeaf(phi, chemistryTree_->getRoot(), nPhi);
                
 		//Blocco Test 4
-		//test4_ -= double(std::clock())/CLOCKS_PER_SEC;
+		//test4_ -= double(std::std::clock())/CLOCKS_PER_SEC;
                 chemistryTree_->insertNewLeaf(phi,Rphi,A,scaleFactor_,epsTol_,nSpec_,qrType_,nPhi);
                 phi0 = nPhi;
-		//test4_ += double(std::clock())/CLOCKS_PER_SEC;
+		//test4_ += double(std::std::clock())/CLOCKS_PER_SEC;
 		//Fine Blocco Test 4
 
                 if(phi0->getNode()->getElRight()) {
@@ -613,7 +613,7 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
                 }
 
                 nAdd_++;
-                tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+                tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
                 cpuAdd_ += tEndOp_-tStartOp_;
                 
                 return true;
@@ -626,7 +626,7 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
             addToMRU(chemistryTree_->getTreeMin());
             addToMFU(chemistryTree_->getTreeMin());
             nAdd_++;
-            tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+            tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
             cpuAdd_ += tEndOp_-tStartOp_;
             return true;
         }
@@ -643,12 +643,12 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
         } 
         nAdd_++;
 
-        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
         cpuAdd_ += tEndOp_-tStartOp_;
         return true;
     }   
     
-    tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+    tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
     cpuAdd_ += tEndOp_-tStartOp_;
     return false;
 }
@@ -669,10 +669,10 @@ bool ISAT::add(const VectorXd &phi, const VectorXd &Rphi, const MatrixXd &A, che
 bool ISAT::grow(const VectorXd &phi, const VectorXd &Rphi, chemComp*& phi0) 
 {
     
-    tStartOp_ = double(clock())/CLOCKS_PER_SEC;
+    tStartOp_ = double(std::clock())/CLOCKS_PER_SEC;
     
     if(!phi0) {
-        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
         cpuGrw_ += tEndOp_-tStartOp_;
         return false;
     }
@@ -684,20 +684,20 @@ bool ISAT::grow(const VectorXd &phi, const VectorXd &Rphi, chemComp*& phi0)
         if (double(phi0_->getGrown()) >= double(maxSizeBT_)*maxGrowCoeff_ && flagCleanAndBalance_) 
         {
             addToRemoveList(phi0_);
-            tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+            tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
             cpuGrw_ += tEndOp_-tStartOp_;
             return false;
         }
         // grow the leaf EOA
         phi0_->growEOA(phi);
         nGrow_++;
-        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
         cpuGrw_ += tEndOp_-tStartOp_;
         return true;
     } 
     else 
     {
-        tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+        tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
         cpuGrw_ += tEndOp_-tStartOp_;
         return false;
     }
@@ -714,11 +714,11 @@ bool ISAT::grow(const VectorXd &phi, const VectorXd &Rphi, chemComp*& phi0)
  */ 
 void ISAT::interpol(const VectorXd &phiQ, VectorXd &Rphi,chemComp *&phi0) {
 
-    tStartOp_ = double(clock())/CLOCKS_PER_SEC;
+    tStartOp_ = double(std::clock())/CLOCKS_PER_SEC;
     chemComp *phi0_=dynamic_cast<chemComp*>(phi0);
     Rphi = phi0_->getRphi() + phi0_->getMapGrad()*(phiQ-phi0_->getPhi());
     nUse_++;
-    tEndOp_ = double(clock())/CLOCKS_PER_SEC;
+    tEndOp_ = double(std::clock())/CLOCKS_PER_SEC;
     cpuInt_ += tEndOp_-tStartOp_;
 
     return;
@@ -781,7 +781,7 @@ bool ISAT::cleanAndBalance()
             nRemovedLeaves_ = 0;    
             //balance procedure
             std::list<chemComp*> rem;
-            double timeNow = double(clock())/CLOCKS_PER_SEC;
+            double timeNow = double(std::clock())/CLOCKS_PER_SEC;
             chemComp *x = chemistryTree_->getTreeMin();
             double diff = timeNow - timeStart_;
             while(x != NULL) {

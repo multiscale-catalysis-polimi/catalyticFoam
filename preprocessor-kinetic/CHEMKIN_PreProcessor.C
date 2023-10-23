@@ -59,7 +59,6 @@
 // Kinetics
 #include "kernel/kinetics/ReactionPolicy_CHEMKIN.h"
 #include "kernel/kinetics/ReactionPolicy_Surface_CHEMKIN.h"
-#include "kernel/kinetics/ReactionPolicy_Solid_CHEMKIN.h"
 
 // Preprocessing
 #include "preprocessing/PreProcessorSpecies.h"
@@ -67,7 +66,6 @@
 #include "preprocessing/PreProcessorKineticsPolicy_CHEMKIN.h"
 #include "preprocessing/PreProcessorSpeciesPolicy_CHEMKIN_WithTransport.h"
 #include "preprocessing/PreProcessorSurfaceKineticsPolicy_CHEMKIN.h"
-#include "preprocessing/PreProcessorSolidKineticsPolicy_CHEMKIN.h"
 
 // Maps
 #include "maps/ThermodynamicsMap_CHEMKIN.h"
@@ -75,8 +73,6 @@
 #include "maps/KineticsMap_CHEMKIN.h"
 #include "maps/ThermodynamicsMap_Surface_CHEMKIN.h"
 #include "maps/KineticsMap_Surface_CHEMKIN.h"
-#include "maps/ThermodynamicsMap_Solid_CHEMKIN.h"
-#include "maps/KineticsMap_Solid_CHEMKIN.h"
 
 // Analyzers
 #include "analyzers/AnalyzerKineticMechanism.h"
@@ -101,7 +97,6 @@ int main(int argc, char** argv)
     typedef OpenSMOKE::PreProcessorKinetics< OpenSMOKE::PreProcessorKineticsPolicy_CHEMKIN<OpenSMOKE::ReactionPolicy_CHEMKIN> > PreProcessorKinetics_CHEMKIN;
     typedef OpenSMOKE::ThermoReader< OpenSMOKE::ThermoReaderPolicy_CHEMKIN< OpenSMOKE::ThermoPolicy_CHEMKIN > > ThermoReader_CHEMKIN;
     typedef OpenSMOKE::PreProcessorKinetics< OpenSMOKE::PreProcessorSurfaceKineticsPolicy_CHEMKIN<OpenSMOKE::ReactionPolicy_Surface_CHEMKIN> >    PreProcessorKinetics_Surface_CHEMKIN;
-    typedef OpenSMOKE::PreProcessorKinetics< OpenSMOKE::PreProcessorSolidKineticsPolicy_CHEMKIN<OpenSMOKE::ReactionPolicy_Solid_CHEMKIN> >    PreProcessorKinetics_Solid_CHEMKIN;
 
     std::string input_file_name_ = "input.dic";
     std::string main_dictionary_name_ = "CHEMKIN_PreProcessor";
@@ -594,14 +589,13 @@ int main(int argc, char** argv)
         // Write detailed kinetic mechanism data (requires the kinetics.xml file to be open)
         if (write_fitted_kinetic_constants_ ==true || write_reaction_tables_ == true || write_reaction_strings_ == true)
         {
-            rapidxml::xml_document<> doc;
-            std::vector<char> xml_string;
-            OpenSMOKE::OpenInputFileXML(doc, xml_string, path_output / "kinetics.xml");
-            
-            OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML; 
-            OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML; 
-            thermodynamicsMapXML = new OpenSMOKE::ThermodynamicsMap_CHEMKIN(doc);
-            kineticsMapXML = new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML, doc); 
+            boost::property_tree::ptree ptree;
+            boost::property_tree::read_xml( (path_output / "kinetics.xml").string(), ptree );
+
+			OpenSMOKE::ThermodynamicsMap_CHEMKIN* thermodynamicsMapXML;
+			OpenSMOKE::KineticsMap_CHEMKIN* kineticsMapXML;
+			thermodynamicsMapXML = new OpenSMOKE::ThermodynamicsMap_CHEMKIN(ptree);
+			kineticsMapXML = new OpenSMOKE::KineticsMap_CHEMKIN(*thermodynamicsMapXML, ptree);
 
             OpenSMOKE::AnalyzerKineticMechanism<PreProcessorKinetics_CHEMKIN, OpenSMOKE::KineticsMap_CHEMKIN >    
                     analyzer(preprocessor_kinetics, *kineticsMapXML);
@@ -701,60 +695,8 @@ int main(int argc, char** argv)
             }
         }
 
-        // Preprocessing the solid kinetic mechanism
-        if (preprocess_solid_kinetics_ == true)
-        {
-            PreProcessorKinetics_Solid_CHEMKIN preprocessor_solid_kinetics(fLog);
-            CheckForFatalError( preprocessor_solid_kinetics.ReadFromASCIIFile(kinetics_solid_file.string()) );
-            
-            PreProcessorSpecies_CHEMKIN_WithoutTransport* solid_preprocessor_species_without_transport;
-            solid_preprocessor_species_without_transport = new PreProcessorSpecies_CHEMKIN_WithoutTransport(*thermoreader, preprocessor_kinetics.names_species(), preprocessor_solid_kinetics, fLog);
-            CheckForFatalError( solid_preprocessor_species_without_transport->Setup() );
-            CheckForFatalError( preprocessor_solid_kinetics.ReadKineticsFromASCIIFile( solid_preprocessor_species_without_transport->AtomicTable(), preprocessor_kinetics ) );
-            
-            // Write on XML files
-            if (write_xml_files_ == true)
-            {
-                std::stringstream xml_string;
-                xml_string << std::setprecision(8);
-                xml_string.setf(std::ios::scientific);
-
-                xml_string << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << std::endl;
-                xml_string << "<opensmoke version=\"0.1a\">" << std::endl;
-
-                xml_string << "<Properties>" << std::endl;
-                xml_string << "  <Author>" << author_name <<"</Author>" << std::endl;
-                xml_string << "  <Place>" << place_name <<"</Place>" << std::endl;
-                xml_string << "  <Date>" << preprocessing_date <<"</Date>" << std::endl;
-                xml_string << "  <Time>" << preprocessing_time <<"</Time>" << std::endl;
-                xml_string << "  <Comments>" << "\n" << OpenSMOKE::SplitStringIntoSeveralLines(comments, 80, "\t\r ") << "\n" <<"  </Comments>" << std::endl;
-                xml_string << "</Properties>" << std::endl;
-
-                // Thermodynamics properties
-                solid_preprocessor_species_without_transport->WriteXMLFile(xml_string);
-
-                // Kinetic mechanism
-                preprocessor_solid_kinetics.WriteXMLFile(xml_string);
-
-                xml_string << "</opensmoke>" << std::endl;
-
-                // Write file
-                boost::filesystem::path kinetics_xml   = path_output / "kinetics.solid.xml";
-                std::ofstream fOutput;
-                fOutput.open(std::string(kinetics_xml.string()).c_str(), std::ios::out);
-                fOutput.setf(std::ios::scientific);
-                fOutput << xml_string.str();
-                fOutput.close();
-            } 
-            
-            // Write kinetic summary in ASCII format
-            if (write_ascii_short_kinetic_summary_ == true)
-            {
-                boost::filesystem::path short_summary_kinetics   = path_output / "SolidSummary.out";
-                preprocessor_solid_kinetics.WriteShortSummaryOnASCIIFile(short_summary_kinetics.string(), *solid_preprocessor_species_without_transport);
-            }
-        }
     }
+    
 
     fLog.close();
 

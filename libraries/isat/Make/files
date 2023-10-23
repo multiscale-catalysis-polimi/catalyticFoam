@@ -1,6 +1,0 @@
-ISAT.C
-binaryTree.C
-binaryNode.C
-chemComp.C
-
-LIB = $(FOAM_USER_LIBBIN)/libISAT
