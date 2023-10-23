@@ -1,7 +1,6 @@
 #Compulsory path
 export EIGEN_LIBRARY_PATH=$HOME/NumericalLibraries/Eigen/Eigen-3.3.5
-export BOOST_LIBRARY_PATH=$HOME/NumericalLibraries/Boost/boost_1_68_0/build
-export RAPIDXML_LIBRARY_PATH=$HOME/NumericalLibraries/RapidXML/rapidxml-1.13 
+export BOOST_LIBRARY_PATH=$HOME/NumericalLibraries/Boost/boost_1_68_0/build 
 
 #Options: ISAT support
 export ISAT_SUPPORT='-DOPENSMOKE_USE_ISAT=1'

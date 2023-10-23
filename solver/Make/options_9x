@@ -10,7 +10,6 @@ EXE_INC = \
 	-Iisat \
 	-I$(BOOST_LIBRARY_PATH)/include \
 	-I$(EIGEN_LIBRARY_PATH) \
-	-I$(RAPIDXML_LIBRARY_PATH) \
 	-I$(LIB_SRC)/finiteVolume/lnInclude \
 	-I$(LIB_SRC)/fvOptions/lnInclude \
 	-I$(LIB_SRC)/meshTools/lnInclude \
