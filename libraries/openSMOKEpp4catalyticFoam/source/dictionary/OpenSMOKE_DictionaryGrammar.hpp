@@ -42,7 +42,7 @@ namespace OpenSMOKE
 {
 	void OpenSMOKE_DictionaryGrammar::ErrorMessage(const std::string message) const
 	{
-		std::cout << "Grammar defined in file " << file_name_->leaf() << std::endl;
+		std::cout << "Grammar defined in file " << file_name_->filename() << std::endl;
 		std::cout << "Fatal error:     " << message << std::endl;
 		std::cout << "Press enter to exit..." << std::endl;
 		getchar();
@@ -187,7 +187,7 @@ namespace OpenSMOKE
 
 	void OpenSMOKE_DictionaryGrammar::ShortSummary(std::ostream& fout) const
 	{
-		fout << "Grammar defined in file: " << file_name_->leaf() << std::endl;
+		fout << "Grammar defined in file: " << file_name_->filename() << std::endl;
 		fout << "-----------------------------------------------------------------------------------------------------" << std::endl;
 		fout << std::endl;
 		for(unsigned int i=0;i<number_of_keywords_;i++)

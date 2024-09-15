@@ -1,7 +1,7 @@
 EXE_INC = \
 	$(OFVERSION) \
 	-w \
-	-std=c++11 \
+	-std=c++14 \
 	-Iode \
 	-Ipolicies \
 	$(ISAT_SUPPORT) \

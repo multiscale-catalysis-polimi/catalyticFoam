@@ -152,7 +152,7 @@ namespace OpenSMOKE
 
 	void InputFileCHEMKIN::Status(std::ostream &fOut) const
 	{ 
-		fOut << "Name:        " << file_name_->leaf() << std::endl;
+		fOut << "Name:        " << file_name_->filename() << std::endl;
 		fOut << "Path:        " << file_name_->parent_path() << std::endl;
 		fOut << "Size:        " << boost::filesystem::file_size(*file_name_)/1000. << " kB" << std::endl;
 		fOut << "Lines:       " << number_of_lines_ << std::endl;

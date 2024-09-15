@@ -27,7 +27,7 @@ Main developers:
 **Important Notice**: A major update of the catalyticFoam solver and related tools has been released. Kinetic schemes preprocessed with the previous versions must be reprocessed as explained [Preprocessing of a kinetic scheme](#preprocessing-of-a-kinetic-scheme) section.
 
 ## Compulsory libraries:
-- [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) 
+- [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 - [Boost C++](http://www.boost.org/)
 - [OpenSMOKE++][1] (provided with the current version of catalyticFoam)
 

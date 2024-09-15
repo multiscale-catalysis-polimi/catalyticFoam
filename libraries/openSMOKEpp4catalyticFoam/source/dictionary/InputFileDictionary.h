@@ -118,7 +118,7 @@ namespace OpenSMOKE
 		/**
 		*@brief Returns the name of the file
 		*/
-		boost::filesystem::path file_name() const { return file_name_->leaf(); }
+		boost::filesystem::path file_name() const { return file_name_->filename(); }
 
 		/**
 		*@brief Returns the path of the file (without the name of the file)
